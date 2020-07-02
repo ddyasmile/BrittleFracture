@@ -2,35 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tuple3<T> {
-    T a, b, c;
+using TriangleNodes2D = Element.Tuple3D<int>;
+using TetrahedronNodes3D = Element.Tuple4D<int>;
 
-    public Tuple3(T A, T B, T C) {
-        this.a = A;
-        this.b = B;
-        this.c = C;
-    }
-}
+using TriangleEdges2D = Element.Tuple3D<int>;
+using TetrahedronEdges3D = Element.Tuple6D<int>;
 
-public class Tuple4<T> {
-    T a, b, c, d;
+using Node2D = UnityEngine.Vector2;
+using Node3D = UnityEngine.Vector3;
 
-    public Tuple4(T A, T B, T C, T D) {
-        this.a = A;
-        this.b = B;
-        this.c = C;
-        this.d = D;
-    }
+public class VolumeticMesh2D {
+    public int count;
+
+    // VM - E
+    public List<double> area;
+
+    // VM - N
+    public List<TetrahedronNodes2D> nodeJointIndexes;
+
+    // VM - L
+    public List<TetrahedronEdges2D> edgeJointIndexes;
+
+    // prepared
+    public List<Edge> edges;
+    public List<Vector2> nodes;
 }
 
 public class VolumeticMesh3D {
-    public double volume;
-    public Tuple4<int> nds;
-    public List<Vector3> nodes;
-}
+    public int count;
 
-public class VolumeticMesh2D {
-    public double volume;
-    public Tuple3<int> nds;
-    public List<Vector2> nodes;
+    // VM - E
+    public List<double> volume;
+
+    // VM - N
+    public List<TetrahedronNodes3D> nodeJointIndexes;
+
+    // VM - L
+    public List<TetrahedronEdges3D> edgeJointIndexes;
+
+    // prepared
+    public List<Edge> edges;
+    public List<Vector3> nodes;
 }
