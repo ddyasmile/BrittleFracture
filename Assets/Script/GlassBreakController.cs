@@ -6,8 +6,7 @@ using UnityEngine.UI;
 public class GlassBreakController : MonoBehaviour
 {
     public Slider energySlider;
-    public Button triggerButton;
-
+    public GameObject canvas;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,7 +20,7 @@ public class GlassBreakController : MonoBehaviour
     }
 
     public void startBreaking() {
-        energySlider.enabled = false;
-        triggerButton.enabled = false;
+        float energy = energySlider.value;
+        Destroy(canvas);
     }
 }
