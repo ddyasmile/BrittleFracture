@@ -176,6 +176,7 @@ GameObject:
   - component: {fileID: 52820727}
   - component: {fileID: 52820729}
   - component: {fileID: 52820728}
+  - component: {fileID: 52820730}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -242,6 +243,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 52820726}
   m_CullTransparentMesh: 0
+--- !u!114 &52820730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52820726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &609040240
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,7 +581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa5fbb8f803a5748a54f2336180c732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m: {fileID: 2100000, guid: d346aef49016de44eba2f382661d7438, type: 2}
+  m: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   vectors:
   - {x: 0, y: 0, z: 0}
   - {x: 1, y: 0, z: 0}
@@ -875,6 +891,7 @@ GameObject:
   - component: {fileID: 1528360275}
   - component: {fileID: 1528360277}
   - component: {fileID: 1528360276}
+  - component: {fileID: 1528360278}
   m_Layer: 5
   m_Name: NumericTag
   m_TagString: Untagged
@@ -942,6 +959,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1528360274}
   m_CullTransparentMesh: 0
+--- !u!114 &1528360278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528360274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1541181040
 GameObject:
   m_ObjectHideFlags: 0
