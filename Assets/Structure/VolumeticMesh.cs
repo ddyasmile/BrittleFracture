@@ -35,7 +35,7 @@ public class VolumeticMesh2D {
     public bool isDamaged(int target) {
         foreach(var edge in edgeJointIndexes[target]) {
             foreach(var damage in damages) {
-                if (damage.edge == edge) {
+                if (damage.edge.Equals(edge)) {
                     return true;
                 }
             }
@@ -65,7 +65,7 @@ public class VolumeticMesh3D {
     public bool isDamaged(int target) {
         foreach(var edge in edgeJointIndexes[target]) {
             foreach(var damage in damages) {
-                if (damage.edge == edge) {
+                if (damage.edge.Equals(edge)) {
                     return true;
                 }
             }

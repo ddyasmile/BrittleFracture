@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace ElementNS {
-    public class Tuple3D<T>: IEnumerable {
+    public struct Tuple3D<T>: IEnumerable {
         T a, b, c;
 
         public Tuple3D(T A, T B, T C) {
@@ -42,7 +42,7 @@ namespace ElementNS {
         }
     }
 
-    public class Tuple4D<T>: IEnumerable {
+    public struct Tuple4D<T>: IEnumerable {
         T a, b, c, d;
 
         public Tuple4D(T A, T B, T C, T D) {
@@ -83,7 +83,7 @@ namespace ElementNS {
         }
     }
 
-    public class Tuple6D<T>: IEnumerable {
+    public struct Tuple6D<T>: IEnumerable {
         T a, b, c, d, e, f;
 
         public Tuple6D(T A, T B, T C, T D, T E, T F) {
