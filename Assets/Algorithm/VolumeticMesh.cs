@@ -20,7 +20,7 @@ public class VolumeticMesh2D {
         this.nodeJointIndexes = new List<TriangleNodes2D>();
         this.edgeJointIndexes = new List<TriangleEdges2D>();
 
-        this.area = new List<double>();
+        // this.area = new List<double>();
         this.edges = new List<Edge2D>();
         this.nodes = new List<Node2D>();
         this.damages = new List<Damage2D>();
@@ -40,7 +40,15 @@ public class VolumeticMesh2D {
     // @ all lists below contains literal values
 
     // VM - E
-    public List<double> area;
+    // public List<double> area;
+    public double getArea(int index) {
+        var points = nodeJointIndexes[index];
+        var edge1 = nodes[points.b] - nodes[points.a];
+        var edge2 = nodes[points.c] - nodes[points.a];
+
+        return Vector2.Dot(edge1, edge2);
+    }
+
     public List<Edge2D> edges;
     public List<Node2D> nodes;
     public List<Damage2D> damages;
@@ -88,7 +96,7 @@ public class VolumeticMesh3D {
         this.nodeJointIndexes = new List<TetrahedronNodes3D>();
         this.edgeJointIndexes = new List<TetrahedronEdges3D>();
 
-        this.volume = new List<double>();
+        // this.volume = new List<double>();
         this.edges = new List<Edge3D>();
         this.nodes = new List<Node3D>();
         this.damages = new List<Damage3D>();
@@ -108,7 +116,14 @@ public class VolumeticMesh3D {
     // @ all lists below contains literal values
 
     // VM - E
-    public List<double> volume;
+    public double getVolume(int index) {
+        var points = nodeJointIndexes[index];
+        var edge1 = nodes[points.b] - nodes[points.a];
+        var edge2 = nodes[points.c] - nodes[points.a];
+        var edge3 = nodes[points.d] - nodes[points.a];
+
+        return Vector3.Dot(edge1, Vector3.Cross(edge2, edge3));
+    }
     public List<Edge3D> edges;
     public List<Node3D> nodes;
     public List<Damage3D> damages;
