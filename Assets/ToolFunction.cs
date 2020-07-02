@@ -2,27 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TetraPart
+public struct Plane
 {
-    /// <summary>
-    /// A fragment combined by tetrahedra.
-    /// </summary>
-    public List<Vector3> vertices;
-    public List<int> triangles;
-    public List<Vector2> uvs;
-    public TetraPart()
+    public Vector3 normal; // Normal of this plane
+    public Vector3 point; // Any point on this plane
+    public Plane(Vector3 normal, Vector3 point)
+    {
+        this.normal = normal;
+        this.point = point;
+    }    
+}
+
+public class Tetrahedron
+{
+    public List<Vector3> tetra;
+    public Tetrahedron(List<Vector3> vertices)
+    {
+        tetra = new List<Vector3>();
+        for (int i = 0; i < 4; i++) tetra.Add(vertices[i]);
+    }
+    public void GetMeshData(out List<Vector3> vertices, out List<int> triangles, out List<Vector2> uvs)
     {
         vertices = new List<Vector3>();
         triangles = new List<int>();
         uvs = new List<Vector2>();
-    }
-    /// <summary>
-    /// Add a tetrahedron to this fragment.
-    /// </summary>
-    /// <param name="tetra">Tetrahedron given.</param>
-    public void PushBackTetra(List<Vector3> tetra)
-    {
-        if (tetra.Count != 4) return;
         for (int i = 0; i < 2; i++)
         {
             for (int j = i + 1; j < 3; j++)
@@ -39,7 +42,8 @@ public class TetraPart
                     {
                         triangles.Add(triangleStartIndex + 1);
                         triangles.Add(triangleStartIndex + 2);
-                    } else
+                    }
+                    else
                     {
                         triangles.Add(triangleStartIndex + 2);
                         triangles.Add(triangleStartIndex + 1);
@@ -52,6 +56,200 @@ public class TetraPart
             // TODO: support uv
             uvs.Add(new Vector2(0.0f, 0.0f));
         }
+    }
+    /// <summary>
+    /// Split a tetrahedron to two tetra parts (fragments). You can invoke TetraPart.Append to merge these fragments.
+    /// </summary>
+    /// <param name="plane"></param>
+    /// <param name="part1"></param>
+    /// <param name="part2"></param>
+    public void Split(Plane plane, out TetraPart part1, out TetraPart part2)
+    {
+        part1 = new TetraPart();
+        part2 = new TetraPart();
+        Vector3 P = plane.point;
+        Vector3 normal = plane.normal;
+        List<Vector3> intersections = new List<Vector3>();
+        Vector3 intersection;
+        int[] segments = { 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3 };
+        for (int j = 0; j < 6; j++)
+        {
+            Vector3 vertex1 = tetra[segments[2 * j]];
+            Vector3 vertex2 = tetra[segments[2 * j + 1]];
+            if (ToolFunction.IntersectionForSegmentWithPlane(vertex1, vertex2, P, normal, out intersection))
+            {
+                intersections.Add(intersection);
+            }
+        }
+        switch (intersections.Count)
+        {
+            case 0:
+                // no intersections. Ignore.
+                part1.PushBackTetra(tetra);
+                return;
+            case 1:
+                intersection = intersections[0];
+                // 1 intersection (not including two vertices)
+                int pindex = 0, nindex = 0;
+                List<int> remains = new List<int>();
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector3 v = tetra[i];
+                    if (Vector3.Dot(v - intersection, normal) > 0)
+                    {
+                        pindex = i;
+                    }
+                    else if (Vector3.Dot(v - intersection, normal) < 0)
+                    {
+                        nindex = i;
+                    }
+                    else
+                    {
+                        remains.Add(i);
+                    }
+                }
+                part1.PushBackTetra(new List<Vector3>{
+                        tetra[pindex], tetra[remains[0]], tetra[remains[1]], intersection
+                    });
+                part2.PushBackTetra(new List<Vector3>{
+                        tetra[nindex], tetra[remains[0]], tetra[remains[1]], intersection
+                    });
+                break;
+            case 2:
+                intersection = intersections[0];
+                List<int> nindices = new List<int>();
+                List<int> pindices = new List<int>();
+                int remainIndex = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector3 v = tetra[i];
+                    if (Vector3.Dot(v - intersection, normal) > 0)
+                    {
+                        pindices.Add(i);
+                    }
+                    else if (Vector3.Dot(v - intersection, normal) < 0)
+                    {
+                        nindices.Add(i);
+                    }
+                    else
+                    {
+                        remainIndex = i;
+                    }
+                }
+                if (pindices.Count == 2)
+                {
+                    part1.PushBackPyramid(new List<Vector3>{
+                            tetra[remainIndex], intersections[0], intersections[1], tetra[pindices[0]], tetra[pindices[1]]
+                        });
+                    part2.PushBackTetra(new List<Vector3>{
+                            tetra[remainIndex], intersections[0], intersections[1], tetra[nindices[0]]
+                        });
+                }
+                else
+                {
+                    part2.PushBackPyramid(new List<Vector3>{
+                            tetra[remainIndex], intersections[0], intersections[1], tetra[nindices[0]], tetra[nindices[1]]
+                        });
+                    part1.PushBackTetra(new List<Vector3>{
+                            tetra[remainIndex], intersections[0], intersections[1], tetra[pindices[0]]
+                        });
+                }
+                break;
+            case 3:
+                intersection = intersections[0];
+                nindices = new List<int>();
+                pindices = new List<int>();
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector3 v = tetra[i];
+                    if (Vector3.Dot(v - intersection, normal) > 0)
+                    {
+                        pindices.Add(i);
+                    }
+                    else if (Vector3.Dot(v - intersection, normal) < 0)
+                    {
+                        nindices.Add(i);
+                    }
+                }
+                if (pindices.Count == 3)
+                {
+                    part1.PushBackTriPrism(new List<Vector3>{
+                            intersections[0], intersections[1], intersections[2], tetra[pindices[0]], tetra[pindices[1]], tetra[pindices[2]]
+                        });
+                    part2.PushBackTetra(new List<Vector3>{
+                            intersections[0], intersections[1], intersections[2], tetra[nindices[0]]
+                        });
+                }
+                else
+                {
+                    part2.PushBackTriPrism(new List<Vector3>{
+                            intersections[0], intersections[1], intersections[2], tetra[nindices[0]], tetra[nindices[1]], tetra[nindices[2]]
+                        });
+                    part1.PushBackTetra(new List<Vector3>{
+                            intersections[0], intersections[1], intersections[2], tetra[pindices[0]]
+                        });
+                }
+                break;
+            case 4:
+                intersection = intersections[0];
+                nindices = new List<int>();
+                pindices = new List<int>();
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector3 v = tetra[i];
+                    if (Vector3.Dot(v - intersection, normal) > 0)
+                    {
+                        pindices.Add(i);
+                    }
+                    else if (Vector3.Dot(v - intersection, normal) < 0)
+                    {
+                        nindices.Add(i);
+                    }
+                }
+                part1.PushBackTriPrism(new List<Vector3>{
+                        intersections[0], intersections[1], intersections[2], intersections[3], tetra[pindices[0]], tetra[pindices[1]]
+                    });
+                part2.PushBackTriPrism(new List<Vector3>{
+                        intersections[0], intersections[1], intersections[2], intersections[3], tetra[nindices[0]], tetra[nindices[1]]
+                    });
+                break;
+        }
+    }
+}
+
+public class TetraPart
+{
+    /// <summary>
+    /// A fragment combined by tetrahedra.
+    /// </summary>
+    public List<Vector3> vertices;
+    public List<int> triangles;
+    public List<Vector2> uvs;
+    public List<Tetrahedron> tetrahedra;
+    public TetraPart()
+    {
+        tetrahedra = new List<Tetrahedron>();
+        vertices = new List<Vector3>();
+        triangles = new List<int>();
+        uvs = new List<Vector2>();
+    }
+    /// <summary>
+    /// Add a tetrahedron to this fragment.
+    /// </summary>
+    /// <param name="tetra">Tetrahedron given.</param>
+    public void PushBackTetra(List<Vector3> tetra)
+    {
+        if (tetra.Count != 4) return;
+        var obj = new Tetrahedron(tetra);
+        tetrahedra.Add(obj);
+        obj.GetMeshData(out List<Vector3> v, out List<int> t, out List<Vector2> u);
+        vertices.AddRange(v);
+        for (int i = 0; i < t.Count; i++)
+        {
+            t[i] += triangles.Count;
+        }
+        triangles.AddRange(t);
+        uvs.AddRange(u);
     }
     /// <summary>
     /// Add a pyramid (5 vertices and 5 planes) to this fragment.
@@ -131,6 +329,21 @@ public class TetraPart
         PushBackTetra(new List<Vector3>{
             vertices2[2], vertices1[0], vertices1[1], vertices1[2]
         });
+    }
+    /// <summary>
+    /// Append an tetra part to this.
+    /// </summary>
+    public void Append(TetraPart t)
+    {
+        tetrahedra.AddRange(t.tetrahedra);
+        int i = triangles.Count;
+        triangles.AddRange(t.triangles);
+        vertices.AddRange(t.vertices);
+        uvs.AddRange(t.uvs);
+        for (int j = i; j < triangles.Count; j++)
+        {
+            triangles[j] += i;
+        }
     }
 }
 
