@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   energySlider: {fileID: 1627043935}
-  triggerButton: {fileID: 609040242}
+  canvas: {fileID: 1373562088}
 --- !u!4 &12462380
 Transform:
   m_ObjectHideFlags: 0
