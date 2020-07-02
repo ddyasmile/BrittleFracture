@@ -16,7 +16,20 @@ public class FloodAlgorithm {
         while (unassignedNodes.Count != 0) {
             var newFragmentId = fragmentCount;
             fragmentCount++;
-            
+
+            List<int> queue = new List<int>();
+            queue.Add(unassignedNodes[0]);
+
+            while (queue.Count != 0)
+            {
+                if (nodes[newFragmentId] == null)
+                    nodes.Add(new List<int>());
+                nodes[newFragmentId].Add(queue[0]);
+            }
+
+
+
+
             var targetNode = unassignedNodes[0];
             unassignedNodes.RemoveAt(0);
             foreach (var ne in mesh.getNeighbors(targetNode)) {
