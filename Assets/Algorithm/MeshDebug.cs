@@ -13,7 +13,9 @@ public class MeshDebug : MonoBehaviour
  
 		foreach(Vector3 vertex in vertices)
 		{
-			Debug.Log(vertex);
+			// Debug.Log(vertex);
+            // Debug.Log("to center distance:");
+            Debug.Log(Vector3.Magnitude(vertex));
 		}
     }
 

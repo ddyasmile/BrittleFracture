@@ -71,3 +71,7 @@ UnityTempFile-*
 
 /Temp/
 .DS_Store
+
+
+/ProjectSettings/
+/Packages/manifest.json
