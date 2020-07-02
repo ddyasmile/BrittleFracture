@@ -17,25 +17,35 @@ using Edge3D = EdgeNS.Edge;
 public class VolumeticMesh2D {
     public int count;
 
-    // VM - E
-    public List<double> area;
-
     // VM - N
     public List<TriangleNodes2D> nodeJointIndexes;
 
     // VM - L
     public List<TriangleEdges2D> edgeJointIndexes;
 
-    // prepared
+    // @ all lists above contains index values
+    // @ all lists below contains literal values
+
+    // VM - E
+    public List<double> area;
     public List<Edge2D> edges;
     public List<Node2D> nodes;
+    public List<Damage2D> damages;
+
+    public bool isDamaged(int target) {
+        foreach(var edge in edgeJointIndexes[target]) {
+            foreach(var damage in damages) {
+                if (damage.edge == edge) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
 
 public class VolumeticMesh3D {
     public int count;
-
-    // VM - E
-    public List<double> volume;
 
     // VM - N
     public List<TetrahedronNodes3D> nodeJointIndexes;
@@ -43,7 +53,23 @@ public class VolumeticMesh3D {
     // VM - L
     public List<TetrahedronEdges3D> edgeJointIndexes;
 
-    // prepared
+    // @ all lists above contains index values
+    // @ all lists below contains literal values
+
+    // VM - E
+    public List<double> volume;
     public List<Edge3D> edges;
     public List<Node3D> nodes;
+    public List<Damage3D> damages;
+
+    public bool isDamaged(int target) {
+        foreach(var edge in edgeJointIndexes[target]) {
+            foreach(var damage in damages) {
+                if (damage.edge == edge) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
