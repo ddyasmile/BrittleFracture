@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Element {
+namespace ElementNS {
     public class Tuple3D<T> {
         T a, b, c;
 

@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using TriangleNodes2D = Element.Tuple3D<int>;
-using TetrahedronNodes3D = Element.Tuple4D<int>;
+using TriangleNodes2D = ElementNS.Tuple3D<int>;
+using TetrahedronNodes3D = ElementNS.Tuple4D<int>;
 
-using TriangleEdges2D = Element.Tuple3D<int>;
-using TetrahedronEdges3D = Element.Tuple6D<int>;
+using TriangleEdges2D = ElementNS.Tuple3D<int>;
+using TetrahedronEdges3D = ElementNS.Tuple6D<int>;
 
 using Node2D = UnityEngine.Vector2;
 using Node3D = UnityEngine.Vector3;
+
+using Edge2D = EdgeNS.Edge;
+using Edge3D = EdgeNS.Edge;
 
 public class VolumeticMesh2D {
     public int count;
@@ -18,14 +21,14 @@ public class VolumeticMesh2D {
     public List<double> area;
 
     // VM - N
-    public List<TetrahedronNodes2D> nodeJointIndexes;
+    public List<TriangleNodes2D> nodeJointIndexes;
 
     // VM - L
-    public List<TetrahedronEdges2D> edgeJointIndexes;
+    public List<TriangleEdges2D> edgeJointIndexes;
 
     // prepared
-    public List<Edge> edges;
-    public List<Vector2> nodes;
+    public List<Edge2D> edges;
+    public List<Node2D> nodes;
 }
 
 public class VolumeticMesh3D {
@@ -41,6 +44,6 @@ public class VolumeticMesh3D {
     public List<TetrahedronEdges3D> edgeJointIndexes;
 
     // prepared
-    public List<Edge> edges;
-    public List<Vector3> nodes;
+    public List<Edge3D> edges;
+    public List<Node3D> nodes;
 }

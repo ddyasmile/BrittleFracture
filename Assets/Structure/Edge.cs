@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-public class Edge {
-    int from, to;
+namespace EdgeNS {
+    public class Edge {
+        int from, to;
+    }
 }
