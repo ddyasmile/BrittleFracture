@@ -25,10 +25,10 @@ public class VolumeticMesh2D {
         this.nodes = new List<Node2D>();
         this.damages = new List<Damage2D>();
 
-        this.triangleCount = 0;
+        // this.triangleCount = 0;
     }
 
-    public int triangleCount;
+    // public int triangleCount;
 
     // VM - N
     public List<TriangleNodes2D> nodeJointIndexes;
@@ -101,10 +101,10 @@ public class VolumeticMesh3D {
         this.nodes = new List<Node3D>();
         this.damages = new List<Damage3D>();
 
-        this.tetrahedronCount = 0;
+        // this.tetrahedronCount = 0;
     }
 
-    public int tetrahedronCount;
+    // public int tetrahedronCount;
 
     // VM - N
     public List<TetrahedronNodes3D> nodeJointIndexes;
@@ -124,6 +124,7 @@ public class VolumeticMesh3D {
 
         return Vector3.Dot(edge1, Vector3.Cross(edge2, edge3));
     }
+
     public List<Edge3D> edges;
     public List<Node3D> nodes;
     public List<Damage3D> damages;
