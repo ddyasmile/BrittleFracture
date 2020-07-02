@@ -5,17 +5,16 @@ using UnityEngine;
 public class Splitter : MonoBehaviour
 {
     public Material m;
-
-    public List<Vector3> vectors;
     // Start is called before the first frame update
-    void Start() {
-        //  = new List<Vector3>
-        // {
-        //     new Vector3(0.0f, 0.0f, 0.0f),
-        //     new Vector3(1.0f, 0.0f, 0.0f),
-        //     new Vector3(0.0f, 1.0f, 0.0f),
-        //     new Vector3(0.0f, 0.0f, 1.0f)
-        // };
+    void Start()
+    {
+        List<Vector3> vectors = new List<Vector3>
+        {
+            new Vector3(0.0f, 0.0f, 0.0f),
+            new Vector3(1.0f, 0.0f, 0.0f),
+            new Vector3(0.0f, 1.0f, 0.0f),
+            new Vector3(0.0f, 0.0f, 1.0f)
+        };
         var g = new GameObject("Tetra");
         var sb = g.AddComponent<ShaderBase>();
         sb.tetraPart.PushBackTetra(vectors);
