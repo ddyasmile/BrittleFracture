@@ -85,8 +85,8 @@ public class VolumeticMesh2D {
 public class VolumeticMesh3D {
 
     public VolumeticMesh3D() {
-        this.nodeJointIndexes = new List<TriangleNodes3D>();
-        this.edgeJointIndexes = new List<TriangleEdges3D>();
+        this.nodeJointIndexes = new List<TetrahedronNodes3D>();
+        this.edgeJointIndexes = new List<TetrahedronEdges3D>();
 
         this.volume = new List<double>();
         this.edges = new List<Edge3D>();
