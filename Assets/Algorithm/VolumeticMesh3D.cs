@@ -17,8 +17,8 @@ public class VolumeticMesh3D
     public VolumeticMesh3D()
     {
         // this.volume = new List<double>();
-        this.edges = new List<Node3D>();
-        this.nodes = new List<Edge3D>();
+        this.edges = new List<Edge3D>();
+        this.nodes = new List<Node3D>();
         this.damages = new List<Damage3D>();
 
         this.nodeIndexOfTetra = new List<TetrahedronNodes3D>();
@@ -170,8 +170,14 @@ public class VolumeticMesh3D
         var edgeE = tryAddEdge(nodeIndexB, nodeIndexD);
         var edgeF = tryAddEdge(nodeIndexC, nodeIndexD);
 
-        this.nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
-        this.edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+        nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
+        edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+
+        if (nodeIndexOfTetra.Count != edgeIndexOfTetra.Count)
+        {
+            Debug.LogError("volmesh3D internal inconsistency");
+        }
+        return nodeIndexOfTetra.Count - 1;
     }
 
     /// <summary>
@@ -236,7 +242,7 @@ public class VolumeticMesh3D
     /// <param name="tetraIndex">the index of tetrahedron to be judged</param>
     public bool isDamagedTetrahedron(int tetraIndex)
     {
-        foreach (var edge in edgeJointIndexes[tetraIndex])
+        foreach (var edge in edgeIndexOfTetra[tetraIndex])
         {
             foreach (var damage in damages)
             {
@@ -252,10 +258,10 @@ public class VolumeticMesh3D
 
     /// <summary>
     /// getCloseNeighbors
-    /// returns all tetrahedron index that directly connects to provided tetrahedron
+    /// returns all nodes index that directly connects to provided tetrahedron
     /// </summary>
-    /// <param name="index">the index of tetrahedron to be calculated</param>
-    public List<int> getCloseNeighbors(int index)
+    /// <param name="index">the index of node to be calculated</param>
+    public List<int> getNeighborNodes(int index)
     {
         var neighbors = new HashSet<int>();
         foreach (var edge in edges)
@@ -271,4 +277,70 @@ public class VolumeticMesh3D
         }
         return new List<int>(neighbors);
     }
+
+    /// <summary>
+    /// getCloseNeighbors
+    /// returns all tetrahedron index that directly connects to provided tetrahedron
+    /// </summary>
+    /// <param name="index">the index of tetrahedron to be calculated</param>
+    public List<int> getNeighborTetras(int index)
+    {
+        var targetEdges = new List<int>();
+
+        foreach (var i in edgeIndexOfTetra[index])
+        {
+            targetEdges.Add((int)i);
+        }
+
+        var resultIndex = new List<int>();
+        for (int i = 0; i < edgeIndexOfTetra.Count; ++i)
+        {
+            if (i == index) continue;
+
+            int counter = 0;
+            foreach (var edge in edgeIndexOfTetra[i])
+            {
+                if (targetEdges.Contains((int)edge)) ++counter;
+            }
+
+            if (counter > 2)
+            {
+                resultIndex.Add(i);
+            }
+        }
+
+        return resultIndex;
+    }
+
+
+    /// <summary>
+    /// getHitRespondingTetraIndex
+    /// returns the responding tetrahedron index
+    /// </summary>
+    /// <param name="position">the world position where the hit happens</param>
+    public int getHitRespondingTetraIndex(Vector3 position)
+    {
+        float minDistance = float.MaxValue;
+        int minDistanceTetraIndex = -1;
+
+        for (int i = 0; i < nodeIndexOfTetra.Count; ++i)
+        {
+            var nodesTuple = nodeIndexOfTetra[i];
+            float distance = 0;
+
+            foreach (var node in nodesTuple)
+            {
+                distance += (nodes[(int)node] - position).sqrMagnitude;
+            }
+
+            if (minDistance > distance)
+            {
+                minDistance = distance;
+                minDistanceTetraIndex = i;
+            }
+        }
+
+        return minDistanceTetraIndex;
+    }
+
 }

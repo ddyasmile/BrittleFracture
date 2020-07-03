@@ -31,10 +31,10 @@ public class Splitter : MonoBehaviour
         sb2.material = m;
         sb2.FlushTetraPart();
 
-        Debug.Log(string.Format("part2 tetrahedra: {0}", sb2.tetraPart.tetrahedra.Count));
+        // Debug.Log(string.Format("part2 tetrahedra: {0}", sb2.tetraPart.tetrahedra.Count));
         var tetra = sb2.tetraPart.tetrahedra[0];
         tetra.Split(new Plane(new Vector3(1.0f, 1.0f, 0.0f), new Vector3(0.0f, -0.5f, 0.0f)), out TetraPart part3, out TetraPart part4);
-        
+
         var g3 = new GameObject("Tetra");
         g3.AddComponent<ShaderBase>().tetraPart = part3;
         g3.GetComponent<ShaderBase>().material = m;
