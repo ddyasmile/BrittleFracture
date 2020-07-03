@@ -277,4 +277,35 @@ public class VolumeticMesh3D
         }
         return new List<int>(neighbors);
     }
+
+
+    /// <summary>
+    /// getHitRespondingTetraIndex
+    /// returns the responding tetrahedron index
+    /// </summary>
+    /// <param name="position">the world position where the hit happens</param>
+    public int getHitRespondingTetraIndex(Vector3 position)
+    {
+        float minDistance = float.MaxValue;
+        int minDistanceTetraIndex = -1;
+
+        for (int i = 0; i < nodeIndexOfTetra.Count; ++i)
+        {
+            var nodesTuple = nodeIndexOfTetra[i];
+            float distance = 0;
+
+            foreach (var node in nodesTuple)
+            {
+                distance += (node - position).sqrMagnitude;
+            }
+
+            if (minDistance > distance)
+            {
+                minDistance = distance;
+                minDistanceTetraIndex = i;
+            }
+        }
+
+        return minDistanceTetraIndex;
+    }
 }
