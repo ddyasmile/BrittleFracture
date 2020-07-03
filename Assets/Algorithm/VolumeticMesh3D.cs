@@ -411,7 +411,7 @@ public class VolumeticMesh3D
             float toPos = implicitSurface(nodes[edges[i].to], pos0, direction);
             if (fromPos * toPos <= 0)
             {
-                double cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
+                float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
                 damages.Add(new Damage3D(edges[i], cutPos));
                 crossed = true;
             }
@@ -429,13 +429,14 @@ public class VolumeticMesh3D
     /// <param name="fractureToughness">fracture toughness of the material</param>
     /// <param name="constantFactor">constant factor that links Ef and Es</param>
     /// <param name="strainEnergyDensity">the strain energy density of element e</param>
-    public void propagatingCracks(Vector3 hitPos, Vector3 initialDirection, 
-        double fractureToughness, 
-        double constantFactor, 
-        double strainEnergyDensity)
+    public void propagatingCracks(Vector3 hitPos, 
+        Vector3 initialDirection, 
+        float fractureToughness,
+        float constantFactor,
+        float strainEnergyDensity)
     {
         // some value that cannot caculate now
-        double areaOfFractureSurfaceThatCrossesElement = 1.0;
+        float areaOfFractureSurfaceThatCrossesElement = 1.0f;
 
         int hitTetra = getHitRespondingTetraIndex(hitPos);
 
@@ -459,8 +460,8 @@ public class VolumeticMesh3D
         fracTetra.Add(hitTetra);
         tmpTetra.Add(hitTetra);
 
-        double fracEnergy = 0.0;
-        double strainEnergy = 0.0;
+        float fracEnergy = 0.0f;
+        float strainEnergy = 0.0f;
 
         while (tmpTetra.Count != 0)
         {
@@ -478,11 +479,16 @@ public class VolumeticMesh3D
 
                 foreach (var neTetra in getNeighborTetras(tetra))
                 {
-                    if (true) {
-
+                    if (isCrossed(center0, initialDirection, neTetra) && 
+                        fracEnergy < strainEnergy &&
+                        !fracTetra.Contains(neTetra)) {
+                        fracTetra.Add(neTetra);
+                        nextTetra.Add(neTetra);
                     }
                 }
             }
+            tmpTetra = nextTetra;
+            nextTetra.Clear();
         }
     }
 }
