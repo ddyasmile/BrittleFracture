@@ -359,8 +359,6 @@ public class VolumeticMesh3D
     /// <param name="direction">the maximum principal stress of the element e0</param>
     public float implicitSurface(Node3D pos, Node3D pos0, Vector3 direction)
     {
-        direction.Normalize();
-
         Vector3 va, vc;
 
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
@@ -409,13 +407,13 @@ public class VolumeticMesh3D
         // Debug.Log(edgeIndexOfTetra[tetra].e);
         // Debug.Log(edgeIndexOfTetra[tetra].f);
 
-        List<int> edgeOfTetra = new List<int>();
-        edgeOfTetra.Add(edgeIndexOfTetra[tetra].a);
-        edgeOfTetra.Add(edgeIndexOfTetra[tetra].b);
-        edgeOfTetra.Add(edgeIndexOfTetra[tetra].c);
-        edgeOfTetra.Add(edgeIndexOfTetra[tetra].d);
-        edgeOfTetra.Add(edgeIndexOfTetra[tetra].e);
-        edgeOfTetra.Add(edgeIndexOfTetra[tetra].f);
+        List<int> edgeOfTetra = edgeIndexOfTetra[tetra].flatten();
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].a);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].b);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].c);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].d);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].e);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].f);
 
         bool crossed = false;
         foreach (var i in edgeOfTetra)
