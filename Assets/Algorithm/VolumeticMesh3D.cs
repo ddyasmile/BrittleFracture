@@ -293,7 +293,7 @@ public class VolumeticMesh3D
     {
         var targetEdges = new List<int>();
 
-        foreach (var i in edgeIndexOfTetra[index])
+        foreach (var i in edgeIndexOfTetra[index].flatten())
         {
             targetEdges.Add((int)i);
         }
@@ -304,10 +304,8 @@ public class VolumeticMesh3D
             if (i == index) continue;
 
             int counter = 0;
-            var edges = edgeIndexOfTetra[i];
-            var edgeList = new List<int> { edges.a, edges.b, edges.c, edges.d, edges.e, edges.f };
 
-            foreach (var edge in edgeList)
+            foreach (var i in edgeIndexOfTetra[index].flatten())
             {
                 if (targetEdges.Contains(edge)) ++counter;
             }
