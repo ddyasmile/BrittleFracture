@@ -26,13 +26,16 @@ public class VolMeshGenerator2D : MonoBehaviour
         Mesh rawMesh = GetComponent<MeshFilter>().mesh;
 
         var vertices = rawMesh.vertices;
-        var triangles = rawMesh.triangles;
 
         foreach (var vertex in vertices) {
             mesh.nodes.Add(new Vector2(vertex.x, vertex.y));
         }
 
-        for (int i = 0; i < triangles.Length; i += 3) {
+        var calculator = new GK.DelaunayCalculator();
+        var result = calculator.CalculateTriangulation(mesh.nodes);
+        var triangles = result.Triangles;
+
+        for (int i = 0; i < triangles.Count; i += 3) {
             var edgeA = new Edge2D(triangles[i], triangles[i + 2]);
             var edgeB = new Edge2D(triangles[i + 2], triangles[i + 1]);
             var edgeC = new Edge2D(triangles[i + 1], triangles[i]);

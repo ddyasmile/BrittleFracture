@@ -50,7 +50,7 @@ namespace GK {
 		public DelaunayTriangulation CalculateTriangulation(IList<Vector2> verts) {
 			DelaunayTriangulation result = null;
 			CalculateTriangulation(verts, ref result);
-
+			
 			return result;
 		}
 
