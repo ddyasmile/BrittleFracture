@@ -303,7 +303,7 @@ public class VolumeticMesh3D
                 if (targetEdges.Contains((int)edge)) ++counter;
             }
 
-            if (counter > 2)
+            if (counter >= 2)
             {
                 resultIndex.Add(i);
             }
