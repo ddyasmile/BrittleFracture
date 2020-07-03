@@ -125,103 +125,116 @@ public class VolumeticMesh3D
 
     public VolumeticMesh3D()
     {
-        this.nodeJointIndexes = new List<TetrahedronNodes3D>();
-        this.edgeJointIndexes = new List<TetrahedronEdges3D>();
-
         // this.volume = new List<double>();
-        this.edges = new List<Edge3D>();
-        this.nodes = new List<Node3D>();
-        this.damages = new List<Damage3D>();
-
-        // this.tetrahedronCount = 0;
+        this.vertices = new List<Node3D>();
     }
 
     // public int tetrahedronCount;
 
     // VM - N
-    public List<TetrahedronNodes3D> nodeJointIndexes;
+    // public List<TetrahedronNodes3D> nodeJointIndexes;
 
     // VM - L
-    public List<TetrahedronEdges3D> edgeJointIndexes;
+    // public List<TetrahedronEdges3D> edgeJointIndexes;
 
     // @ all lists above contains index values
     // @ all lists below contains literal values
 
     // VM - E
-    public double getVolume(int index)
-    {
-        var points = nodeJointIndexes[index];
-        var edge1 = nodes[points.b] - nodes[points.a];
-        var edge2 = nodes[points.c] - nodes[points.a];
-        var edge3 = nodes[points.d] - nodes[points.a];
+    // public double getVolume(int index)
+    // {
+    //     var points = nodeJointIndexes[index];
+    //     var edge1 = nodes[points.b] - nodes[points.a];
+    //     var edge2 = nodes[points.c] - nodes[points.a];
+    //     var edge3 = nodes[points.d] - nodes[points.a];
 
-        return Vector3.Dot(edge1, Vector3.Cross(edge2, edge3));
-    }
+    //     return Vector3.Dot(edge1, Vector3.Cross(edge2, edge3));
+    // }
 
-    public int tryAddEdge(int from, int to)
-    {
-        var edge = new Edge3D(from, to);
-        if (edges.Contains(edge))
-        {
-            return edges.FindIndex(edg => edg == edge);
-        }
-        else
-        {
-            edges.Add(edge);
-            return edges.Count - 1;
-        }
-    }
+    // public int tryAddEdge(int from, int to)
+    // {
+    //     var edge = new Edge3D(from, to);
+    //     if (edges.Contains(edge))
+    //     {
+    //         return edges.FindIndex(edg => edg == edge);
+    //     }
+    //     else
+    //     {
+    //         edges.Add(edge);
+    //         return edges.Count - 1;
+    //     }
+    // }
 
-    public List<Edge3D> edges;
-    public List<Node3D> nodes;
-    public List<Damage3D> damages;
+    // public List<Edge3D> edges;
+    public List<Node3D> vertices;
+    // public List<Damage3D> damages;
 
-    public void calculateVolumes()
+    public float calculateVolumes()
     {
         // TODO: fill in volume List
+        var meshFilter = GetComponent<MeshFilter>();
+
+        Vector3[] arrVertices = meshFilter.mesh.vertices;
+        int[] arrTriangles = meshFilter.mesh.triangles;
+        float sum = 0.0f;
+        for (int i = 0; i < meshFilter.mesh.subMeshCount; i++)
+        {
+            int[] arrIndices = meshFilter.mesh.GetTriangles(i);
+            for (int j = 0; j < arrIndices.Length; j += 3)
+                sum += this.CalculateVolume(arrVertices[arrIndices[j]]
+                            , arrVertices[arrIndices[j + 1]]
+                            , arrVertices[arrIndices[j + 2]]);
+        }
+
+        return sum;
     }
 
-    public bool isDamagedEdge(Edge3D edge)
+    private float CalculateVolume(Vector3 pt0, Vector3 pt1, Vector3 pt2)
     {
-        foreach (var damage in damages)
-        {
-            if (damage.edge.Equals(edge))
-            {
-                return true;
-            }
-        }
-        return false;
+        return Vector3.Dot(Vector3.Cross(pt0, pt1), pt2);
     }
 
-    public bool isDamagedTetrahedron(int target)
-    {
-        foreach (var edge in edgeJointIndexes[target])
-        {
-            foreach (var damage in damages)
-            {
-                if (damage.edge.Equals(edge))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    // public bool isDamagedEdge(Edge3D edge)
+    // {
+    //     foreach (var damage in damages)
+    //     {
+    //         if (damage.edge.Equals(edge))
+    //         {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
-    public List<int> getNeighbors(int i)
-    {
-        var neighbors = new HashSet<int>();
-        foreach (var edge in edges)
-        {
-            if (edge.from == i)
-            {
-                neighbors.Add(edge.to);
-            }
-            else if (edge.to == i)
-            {
-                neighbors.Add(edge.from);
-            }
-        }
-        return new List<int>(neighbors);
-    }
+    // public bool isDamagedTetrahedron(int target)
+    // {
+    //     foreach (var edge in edgeJointIndexes[target])
+    //     {
+    //         foreach (var damage in damages)
+    //         {
+    //             if (damage.edge.Equals(edge))
+    //             {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
+
+    // public List<int> getNeighbors(int i)
+    // {
+    //     var neighbors = new HashSet<int>();
+    //     foreach (var edge in edges)
+    //     {
+    //         if (edge.from == i)
+    //         {
+    //             neighbors.Add(edge.to);
+    //         }
+    //         else if (edge.to == i)
+    //         {
+    //             neighbors.Add(edge.from);
+    //         }
+    //     }
+    //     return new List<int>(neighbors);
+    // }
 }

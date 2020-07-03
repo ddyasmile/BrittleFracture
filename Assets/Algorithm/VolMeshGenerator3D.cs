@@ -9,12 +9,14 @@ using TetrahedronEdges3D = ElementNS.Tuple6D<int>;
 public class VolMeshGenerator3D : MonoBehaviour
 {
 
-    public int PointCountLimit = 500;
+    public int PointCountLimit = 50;
+    public Material tetraMaterial;
 
     // Start is called before the first frame update
     void Start()
     {
-        generateMesh();
+        var mesh3d = generateMesh();
+        // drawMesh(mesh3d);
     }
 
     // Update is called once per frame
@@ -71,77 +73,80 @@ public class VolMeshGenerator3D : MonoBehaviour
             Debug.LogError("no enough points to generate volmesh");
             return null;
         }
+        Debug.Log(string.Format("internal {0} points", points.Count));
+
+        // foreach (var point in points)
+        // {
+        // Debug.Log(point);
+        // }
 
         var returnMesh = new VolumeticMesh3D();
 
-        var scale = transform.lossyScale.x;
-
-        var hullCalc = new GK.ConvexHullCalculator();
-        hullCalc.GenerateHull(points, ref verts, ref tris, ref normals);
-
-        returnMesh.nodes = verts;
-
-        var triangleIndexes = new List<List<int>>();
-
-        for (int i = 0; i < tris.Count; i += 3)
-        {
-            triangleIndexes.Add(new List<int>() { tris[i], tris[i + 1], tris[i + 2] });
-        }
-
-        var triangleCount = triangleIndexes.Count;
-        if (triangleCount < 4)
-        {
-            Debug.LogError("no enough triangles to generate volmesh");
-            return returnMesh;
-        }
-        
+        returnMesh.vertices = points;
 
         // write a rubbish O(N^4) algorithm
-        for (int i = 0; i < triangleCount - 3; i++)
+        for (int i = 0; i < points.Count - 3; i++)
         {
-            for (int j = i + 1; j < triangleCount - 2; j++)
+            for (int j = i + 1; j < points.Count - 2; j++)
             {
-                for (int k = j + 1; k < triangleCount - 1; k++)
+                for (int k = j + 1; k < points.Count - 1; k++)
                 {
-                    for (int l = k + 1; l < triangleCount; l++)
+                    for (int l = k + 1; l < points.Count; l++)
                     {
                         // Debug.Log(triangleCount);
                         // Debug.Log(i);
                         // Debug.Log(j);
                         // Debug.Log(k);
                         // Debug.Log(l);
-                        // Debug.Log("===");
-                        var uniqueNodes = new List<int>();
-                        uniqueNodes.AddRange(triangleIndexes[i]);
-                        uniqueNodes.AddRange(triangleIndexes[j]);
-                        uniqueNodes.AddRange(triangleIndexes[k]);
-                        uniqueNodes.AddRange(triangleIndexes[l]);
-                        if (uniqueNodes.Count < 4)
-                        {
-                            Debug.LogError("no ... that's impossible!");
-                        }
-                        else if (uniqueNodes.Count == 4)
-                        {
-                            var node1 = uniqueNodes[0];
-                            var node2 = uniqueNodes[1];
-                            var node3 = uniqueNodes[2];
-                            var node4 = uniqueNodes[3];
-                            returnMesh.nodeJointIndexes.Add(new TetrahedronNodes3D(node1, node2, node3, node4));
+                        // Debug.Log("===")
 
-                            var edge1 = returnMesh.tryAddEdge(node1, node2);
-                            var edge2 = returnMesh.tryAddEdge(node1, node3);
-                            var edge3 = returnMesh.tryAddEdge(node1, node4);
-                            var edge4 = returnMesh.tryAddEdge(node2, node3);
-                            var edge5 = returnMesh.tryAddEdge(node2, node4);
-                            var edge6 = returnMesh.tryAddEdge(node3, node4);
+                        returnMesh.nodeJointIndexes.Add(new TetrahedronNodes3D(i, j, k, l));
 
-                            returnMesh.edgeJointIndexes.Add(new TetrahedronEdges3D(edge1, edge2, edge3, edge4, edge5, edge6));
-                        }
+                        var edge1 = returnMesh.tryAddEdge(i, j);
+                        var edge2 = returnMesh.tryAddEdge(i, k);
+                        var edge3 = returnMesh.tryAddEdge(i, l);
+                        var edge4 = returnMesh.tryAddEdge(j, k);
+                        var edge5 = returnMesh.tryAddEdge(j, l);
+                        var edge6 = returnMesh.tryAddEdge(k, l);
+
+                        returnMesh.edgeJointIndexes.Add(new TetrahedronEdges3D(edge1, edge2, edge3, edge4, edge5, edge6));
                     }
                 }
             }
         }
 
+        Debug.Log(string.Format("splited it into {0} tetras", returnMesh.edgeJointIndexes.Count));
+
         return returnMesh;
+    }
+
+    public void drawSubElement(List<int> vertices)
+    {
+        var vertices;
+    }
+
+    public void drawMesh(VolumeticMesh3D toDrawMesh)
+    {
+        Destroy(gameObject);
+        for (int i = 0; i < toDrawMesh.edgeJointIndexes.Count; ++i)
+        {
+            var vectors = new List<Vector3>
+            {
+                toDrawMesh.nodes[toDrawMesh.nodeJointIndexes[i].a],
+                toDrawMesh.nodes[toDrawMesh.nodeJointIndexes[i].b],
+                toDrawMesh.nodes[toDrawMesh.nodeJointIndexes[i].c],
+                toDrawMesh.nodes[toDrawMesh.nodeJointIndexes[i].d]
+            };
+            var g = new GameObject("Tetra");
+            var sb = g.AddComponent<ShaderBase>();
+            sb.tetraPart.PushBackTetra(vectors);
+            sb.material = tetraMaterial;
+            var rb = g.AddComponent<Rigidbody>();
+            rb.useGravity = false;
+            rb.drag = 0.3f;
+            rb.angularDrag = 0.3f;
+            var random = new System.Random();
+            rb.AddForce(random.Next(-5, 5), random.Next(-5, 5), random.Next(-5, 5));
+        }
     }
 }

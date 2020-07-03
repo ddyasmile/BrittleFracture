@@ -1465,7 +1465,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edb898d7960ac4cb0b4e41d7b4b02991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PointCountLimit: 20
+  PointCountLimit: 10
+  tetraMaterial: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!65 &2142161884
 BoxCollider:
   m_ObjectHideFlags: 0
