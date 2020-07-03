@@ -363,9 +363,28 @@ public class VolumeticMesh3D
 
         Vector3 va, vc;
 
+        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+
+        direction.Normalize();
+
+        if (direction == up)
+        {
+            va = new Vector3(1.0f, 0.0f, 0.0f);
+            vc = new Vector3(0.0f, 0.0f, 1.0f);
+        }
+        else if (direction == -up)
+        {
+            va = new Vector3(-1.0f, 0.0f, 0.0f);
+            vc = new Vector3(0.0f, 0.0f, -1.0f);
+        }
+        else
+        {
+            vc = Vector3.Cross(up, direction).normalized;
+            va = Vector3.Cross(vc, direction).normalized;
+        }
 
         var offset = pos - pos0;
-        var R = Matrix3D.initMatrixWithColumnVectors(va.normalized, direction, vc.normalized).getInverseMatrix();
+        var R = Matrix3D.initMatrixWithColumnVectors(va, direction, vc).getInverseMatrix();
 
         var result = R.multiply(offset);
 
