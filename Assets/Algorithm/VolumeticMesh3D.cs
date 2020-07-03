@@ -101,14 +101,15 @@ public class VolumeticMesh3D
     /// <param name="node">the node to insert or find</param>
     public int tryAddNode(Node3D node)
     {
-        if (nodes.Contains(node))
-        {
-            return nodes.FindIndex(nod => nod == node);
-        }
-        else
+        var index = nodes.FindIndex(nod => nod == node);
+        if (index == -1)
         {
             nodes.Add(node);
             return nodes.Count - 1;
+        }
+        else
+        {
+            return index;
         }
     }
 
@@ -135,14 +136,15 @@ public class VolumeticMesh3D
     /// <param name="edge">the edge to insert or find</param>
     public int tryAddEdge(Edge3D edge)
     {
-        if (edges.Contains(edge))
-        {
-            return edges.FindIndex(edg => edg == edge);
-        }
-        else
+        var index = edges.FindIndex(edg => edg == edge);
+        if (index == -1)
         {
             edges.Add(edge);
             return edges.Count - 1;
+        }
+        else
+        {
+            return index;
         }
     }
 
@@ -169,6 +171,8 @@ public class VolumeticMesh3D
         var edgeD = tryAddEdge(nodeIndexB, nodeIndexC);
         var edgeE = tryAddEdge(nodeIndexB, nodeIndexD);
         var edgeF = tryAddEdge(nodeIndexC, nodeIndexD);
+
+        // Debug.Log(string.Format("{0} {1} {2} {3} {4} {5}", edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
 
         nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
         edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
@@ -355,26 +359,39 @@ public class VolumeticMesh3D
         direction.Normalize();
 
         Vector3 va, vc;
-        
-        if (direction.x != 0 && direction.y != 0) {            
+
+        if (direction.x != 0 && direction.y != 0)
+        {
             va = new Vector3(0, direction.z, -direction.y);
             vc = new Vector3(direction.z, 0, -direction.x);
-        } else if (direction.x != 0 && direction.z != 0) {
+        }
+        else if (direction.x != 0 && direction.z != 0)
+        {
             va = new Vector3(0, direction.z, -direction.y);
             vc = new Vector3(direction.y, -direction.x, 0);
-        } else if (direction.y != 0 && direction.z != 0) {
+        }
+        else if (direction.y != 0 && direction.z != 0)
+        {
             va = new Vector3(direction.z, 0, -direction.x);
             vc = new Vector3(direction.y, -direction.x, 0);
-        } else if (direction.x != 0) {
+        }
+        else if (direction.x != 0)
+        {
             va = new Vector3(0, 1, 0);
             vc = new Vector3(0, 0, 1);
-        } else if (direction.y != 0) {
+        }
+        else if (direction.y != 0)
+        {
             va = new Vector3(1, 0, 0);
             vc = new Vector3(0, 0, 1);
-        } else if (direction.z != 0) {
+        }
+        else if (direction.z != 0)
+        {
             va = new Vector3(1, 0, 0);
             vc = new Vector3(0, 1, 0);
-        } else {
+        }
+        else
+        {
             return 0;
         }
 
@@ -429,8 +446,8 @@ public class VolumeticMesh3D
     /// <param name="fractureToughness">fracture toughness of the material</param>
     /// <param name="constantFactor">constant factor that links Ef and Es</param>
     /// <param name="strainEnergyDensity">the strain energy density of element e</param>
-    public void propagatingCracks(Vector3 hitPos, 
-        Vector3 initialDirection, 
+    public void propagatingCracks(Vector3 hitPos,
+        Vector3 initialDirection,
         float fractureToughness,
         float constantFactor,
         float strainEnergyDensity)
@@ -467,8 +484,8 @@ public class VolumeticMesh3D
         {
             foreach (var tetra in tmpTetra)
             {
-                fracEnergy += 
-                    areaOfFractureSurfaceThatCrossesElement * 
+                fracEnergy +=
+                    areaOfFractureSurfaceThatCrossesElement *
                     fractureToughness;
                 strainEnergy +=
                     areaOfFractureSurfaceThatCrossesElement *
@@ -479,9 +496,10 @@ public class VolumeticMesh3D
 
                 foreach (var neTetra in getNeighborTetras(tetra))
                 {
-                    if (isCrossed(center0, initialDirection, neTetra) && 
+                    if (isCrossed(center0, initialDirection, neTetra) &&
                         fracEnergy < strainEnergy &&
-                        !fracTetra.Contains(neTetra)) {
+                        !fracTetra.Contains(neTetra))
+                    {
                         fracTetra.Add(neTetra);
                         nextTetra.Add(neTetra);
                     }
