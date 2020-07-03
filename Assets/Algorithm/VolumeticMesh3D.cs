@@ -386,9 +386,15 @@ public class VolumeticMesh3D
         var offset = pos - pos0;
         var R = Matrix3D.initMatrixWithColumnVectors(va, direction, vc).getInverseMatrix();
 
-        var result = R.getInverseMatrix().multiply(offset);
+        var result = R.multiply(offset);
+        var noise = Mathf.PerlinNoise(result.x, result.z);
 
-        return result.y - Mathf.PerlinNoise(result.x, result.z);
+        Debug.Log(result.x);
+        Debug.Log(result.y);
+        Debug.Log(result.z);
+        Debug.Log(noise);
+
+        return result.y - noise;
     }
 
     /// <summary>
