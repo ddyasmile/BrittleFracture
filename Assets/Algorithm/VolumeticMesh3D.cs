@@ -94,9 +94,11 @@ public class VolumeticMesh3D
 
     /// <summary>
     /// tryAddNode
-    /// calculate the volume of a specific tetra
+    /// find the node in current nodes.
+    /// if exists, return its index
+    /// if not, insert it and return its new index
     /// </summary>
-    /// <param name="node">the node to insert of find</param>
+    /// <param name="node">the node to insert or find</param>
     public int tryAddNode(Node3D node)
     {
         if (nodes.Contains(node))
@@ -110,12 +112,27 @@ public class VolumeticMesh3D
         }
     }
 
+    /// <summary>
+    /// tryAddNode
+    /// find the node in current nodes.
+    /// if exists, return its index
+    /// if not, insert it and return its new index
+    /// </summary>
+    /// <param name="from">one tail of the edge. choose which tail is irrelevant.</param>
+    /// <param name="to">one tail of the edge. choose which tail is irrelevant.</param>
     public int tryAddEdge(int from, int to)
     {
         var edge = new Edge3D(from, to);
         return tryAddEdge(edge);
     }
 
+    /// <summary>
+    /// tryAddEdge
+    /// find the edge in current edges.
+    /// if exists, return its index
+    /// if not, insert it and return its new index
+    /// </summary>
+    /// <param name="edge">the edge to insert or find</param>
     public int tryAddEdge(Edge3D edge)
     {
         if (edges.Contains(edge))
@@ -129,7 +146,17 @@ public class VolumeticMesh3D
         }
     }
 
-    public int tryAddTetrahedron(Node3D nodeA, Node3D nodeB, Node3D nodeC, Node3D nodeD)
+    /// <summary>
+    /// addTetrahedron
+    /// add a tetrahedron into current mesh
+    /// automatically adds nodes and edges
+    /// and sets nodeIndexOfTetra and edgeIndexOfTetra
+    /// </summary>
+    /// <param name="nodeA">one node of four constructing the tetrahedron</param>
+    /// <param name="nodeB">one node of four constructing the tetrahedron</param>
+    /// <param name="nodeC">one node of four constructing the tetrahedron</param>
+    /// <param name="nodeD">one node of four constructing the tetrahedron</param>
+    public int addTetrahedron(Node3D nodeA, Node3D nodeB, Node3D nodeC, Node3D nodeD)
     {
         var nodeIndexA = tryAddNode(nodeA);
         var nodeIndexB = tryAddNode(nodeB);
@@ -147,6 +174,13 @@ public class VolumeticMesh3D
         this.edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
     }
 
+    /// <summary>
+    /// tryAddDamage
+    /// find the damage in current damages.
+    /// if exists, return its index
+    /// if not, insert it and return its new index
+    /// </summary>
+    /// <param name="damage">the damage to insert or find</param>
     public int tryAddDamage(Damage3D damage)
     {
         if (damages.Contains(damage))
@@ -160,6 +194,29 @@ public class VolumeticMesh3D
         }
     }
 
+    /// <summary>
+    /// isDamagedEdge
+    /// judge if an edge is damaged
+    /// </summary>
+    /// <param name="edgeIndex">the edge index in current edges List</param>
+    public bool isDamagedEdge(int edgeIndex)
+    {
+        var edge = edges[edgeIndex];
+        foreach (var damage in damages)
+        {
+            if (damage.edge.Equals(edge))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// isDamagedEdge
+    /// judge if an edge is damaged
+    /// </summary>
+    /// <param name="edge">the edge to be judged</param>
     public bool isDamagedEdge(Edge3D edge)
     {
         foreach (var damage in damages)
@@ -172,9 +229,14 @@ public class VolumeticMesh3D
         return false;
     }
 
-    public bool isDamagedTetrahedron(int target)
+    /// <summary>
+    /// isDamagedTetrahedron
+    /// judge if an tetrahedron contains damaged edge
+    /// </summary>
+    /// <param name="tetraIndex">the index of tetrahedron to be judged</param>
+    public bool isDamagedTetrahedron(int tetraIndex)
     {
-        foreach (var edge in edgeJointIndexes[target])
+        foreach (var edge in edgeJointIndexes[tetraIndex])
         {
             foreach (var damage in damages)
             {
@@ -187,7 +249,13 @@ public class VolumeticMesh3D
         return false;
     }
 
-    public List<int> getNearestNeighbors(int index)
+
+    /// <summary>
+    /// getCloseNeighbors
+    /// returns all tetrahedron index that directly connects to provided tetrahedron
+    /// </summary>
+    /// <param name="index">the index of tetrahedron to be calculated</param>
+    public List<int> getCloseNeighbors(int index)
     {
         var neighbors = new HashSet<int>();
         foreach (var edge in edges)
