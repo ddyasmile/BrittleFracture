@@ -40,9 +40,9 @@ public class ShaderBase : MonoBehaviour
         //GameObject gameObject = new GameObject("Tetrahedron");
         //gameObject.transform.position = Vector3.zero;
         FlushTetraPart();
+        
     }
     void Update()
     {
-        
     }
 }

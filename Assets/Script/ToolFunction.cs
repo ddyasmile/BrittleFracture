@@ -10,7 +10,12 @@ public struct Plane
     {
         this.normal = normal;
         this.point = point;
-    }    
+    }
+    public Plane(Vector3 p1, Vector3 p2, Vector3 p3)
+    {
+        normal = Vector3.Cross(p2 - p1, p3 - p1);
+        point = p1;
+    }
 }
 
 public class Tetrahedron
@@ -344,6 +349,47 @@ public class TetraPart
         {
             triangles[j] += i;
         }
+    }
+    public void SplitSelf()
+    {
+        TetraPart newPart = new TetraPart();
+        foreach (var t in tetrahedra)
+        {
+            var v1 = t.tetra[0];
+            var v2 = t.tetra[1];
+            var v3 = t.tetra[2];
+            var v4 = t.tetra[3];
+            var mid12 = (v1 + v2) / 2;
+            var mid13 = (v1 + v3) / 2;
+            var mid14 = (v1 + v4) / 2;
+            var mid23 = (v2 + v3) / 2;
+            var mid24 = (v2 + v4) / 2;
+            var mid34 = (v3 + v4) / 2;
+            newPart.PushBackTetra(new List<Vector3>
+            {
+                v1, mid12, mid13, mid14
+            });
+            newPart.PushBackTetra(new List<Vector3>
+            {
+                v2, mid12, mid23, mid24
+            });
+            newPart.PushBackTetra(new List<Vector3>
+            {
+                v3, mid13, mid34, mid23
+            });
+            newPart.PushBackPyramid(new List<Vector3>
+            {
+                mid13, mid12, mid23, mid14, mid34
+            });
+            newPart.PushBackTriPrism(new List<Vector3>
+            {
+                mid14, mid12, mid34, mid23, mid24, v4
+            });
+        }
+        tetrahedra = newPart.tetrahedra;
+        triangles = newPart.triangles;
+        uvs = newPart.uvs;
+        vertices = newPart.vertices;
     }
 }
 
