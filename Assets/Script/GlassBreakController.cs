@@ -22,5 +22,16 @@ public class GlassBreakController : MonoBehaviour
     public void startBreaking() {
         float energy = energySlider.value;
         Destroy(canvas);
+
+        var mesh3d = new VolumeticMesh3D();
+        var tetra = GameObject.Find("Tetra");
+        var shaderBase = tetra.GetComponent<ShaderBase>();
+
+        var tetrahedra = shaderBase.tetraPart.tetrahedra;
+        for (int i = 0; i < tetrahedra.Count; i++)
+        {
+            var vertices = tetrahedra[i].tetra;
+            mesh3d.addTetrahedron(vertices[0], vertices[1], vertices[2], vertices[3]);
+        }
     }
 }
