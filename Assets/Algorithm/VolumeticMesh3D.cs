@@ -396,6 +396,14 @@ public class VolumeticMesh3D
     /// <param name="tetra"> the element to be judged</param>
     public bool isCrossed(Node3D pos0, Vector3 direction, int tetra)
     {
+        // Debug.Log(tetra);
+        // Debug.Log(edgeIndexOfTetra[tetra].a);
+        // Debug.Log(edgeIndexOfTetra[tetra].b);
+        // Debug.Log(edgeIndexOfTetra[tetra].c);
+        // Debug.Log(edgeIndexOfTetra[tetra].d);
+        // Debug.Log(edgeIndexOfTetra[tetra].e);
+        // Debug.Log(edgeIndexOfTetra[tetra].f);
+
         List<int> edgeOfTetra = new List<int>();
         edgeOfTetra.Add(edgeIndexOfTetra[tetra].a);
         edgeOfTetra.Add(edgeIndexOfTetra[tetra].b);
@@ -407,12 +415,13 @@ public class VolumeticMesh3D
         bool crossed = false;
         foreach (var i in edgeOfTetra)
         {
+            // Debug.Log(i); Debug.Log(edges[i].from); Debug.Log("Bar");
             float fromPos = implicitSurface(nodes[edges[i].from], pos0, direction);
             float toPos = implicitSurface(nodes[edges[i].to], pos0, direction);
             if (fromPos * toPos <= 0)
             {
                 float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
-                damages.Add(new Damage3D(edges[i], cutPos));
+                tryAddDamage(new Damage3D(edges[i], cutPos));
                 crossed = true;
             }
         }
@@ -435,6 +444,12 @@ public class VolumeticMesh3D
         float constantFactor,
         float strainEnergyDensity)
     {
+        // Debug.Log(nodeIndexOfTetra.Count); //3072
+        // Debug.Log(edgeIndexOfTetra.Count); //3072
+        // Debug.Log(nodes.Count);            //729
+        // Debug.Log(edges.Count);            //4856
+        // Debug.Log(damages.Count);
+
         // some value that cannot caculate now
         float areaOfFractureSurfaceThatCrossesElement = 1.0f;
 
