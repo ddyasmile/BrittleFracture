@@ -258,10 +258,10 @@ public class VolumeticMesh3D
 
     /// <summary>
     /// getCloseNeighbors
-    /// returns all tetrahedron index that directly connects to provided tetrahedron
+    /// returns all nodes index that directly connects to provided tetrahedron
     /// </summary>
-    /// <param name="index">the index of tetrahedron to be calculated</param>
-    public List<int> getCloseNeighbors(int index)
+    /// <param name="index">the index of node to be calculated</param>
+    public List<int> getNeighborNodes(int index)
     {
         var neighbors = new HashSet<int>();
         foreach (var edge in edges)
@@ -276,6 +276,40 @@ public class VolumeticMesh3D
             }
         }
         return new List<int>(neighbors);
+    }
+
+    /// <summary>
+    /// getCloseNeighbors
+    /// returns all tetrahedron index that directly connects to provided tetrahedron
+    /// </summary>
+    /// <param name="index">the index of tetrahedron to be calculated</param>
+    public List<int> getNeighborTetras(int index)
+    {
+        var targetEdges = new List<int>();
+
+        foreach (var i in edgeIndexOfTetra[index])
+        {
+            targetEdges.Add((int)i);
+        }
+
+        var resultIndex = new List<int>();
+        for (int i = 0; i < edgeIndexOfTetra.Count; ++i)
+        {
+            if (i == index) continue;
+
+            int counter = 0;
+            foreach (var edge in edgeIndexOfTetra[i])
+            {
+                if (targetEdges.Contains((int)edge)) ++counter;
+            }
+
+            if (counter > 2)
+            {
+                resultIndex.Add(i);
+            }
+        }
+
+        return resultIndex;
     }
 
 
@@ -308,4 +342,5 @@ public class VolumeticMesh3D
 
         return minDistanceTetraIndex;
     }
+
 }

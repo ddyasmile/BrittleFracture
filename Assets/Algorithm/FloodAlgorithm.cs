@@ -78,7 +78,7 @@ public class FloodAlgorithm
                 if (nodes[newFragmentId] == null)
                     nodes.Add(new List<int>());
                 nodes[newFragmentId].Add(targetNode);
-                foreach (var ne in mesh.getCloseNeighbors(targetNode))
+                foreach (var ne in mesh.getNeighborNodes(targetNode))
                 {
                     if (!queue.Contains(ne))
                     {
