@@ -10,7 +10,16 @@ public class GlassBreakController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // var mat = Matrix3D.initMatrixWithValues(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
+        // Debug.Log(mat.getDeterminant());
+
+        // var newMat = mat.getInverseMatrix().getInverseMatrix();
+
+        // foreach (var value in newMat.values)
+        // {
+        //     Debug.Log(value);
+        // }
     }
 
     // Update is called once per frame
