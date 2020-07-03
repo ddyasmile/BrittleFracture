@@ -343,4 +343,105 @@ public class VolumeticMesh3D
         return minDistanceTetraIndex;
     }
 
+
+    public float implicitSurface(Node3D pos, Node3D pos0, Vector3 direction)
+    {
+        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+
+        direction = direction.normalized;
+        Vector3 front, side;
+        if (direction == up)
+        {
+            front = new Vector3(1.0f, 0.0f, 0.0f);
+            side = new Vector3(0.0f, 0.0f, 1.0f);
+        }
+        else if (direction == -up)
+        {
+            front = new Vector3(-1.0f, 0.0f, 0.0f);
+            side = new Vector3(0.0f, 0.0f, -1.0f);
+        }
+        else
+        {
+            side = Vector3.Cross(up, direction).normalized;
+            front = Vector3.Cross(side, direction).normalized;
+        }
+
+        return 0.0;
+    }
+
+    public bool isCrossed(Vector3 direction, int tetra)
+    {
+        List<int> nodesOfTetra = new List<int>();
+        nodesOfTetra.Add(nodeJointIndexes[tetra].a);
+        nodesOfTetra.Add(nodeJointIndexes[tetra].b);
+        nodesOfTetra.Add(nodeJointIndexes[tetra].c);
+        nodesOfTetra.Add(nodeJointIndexes[tetra].d);
+
+        Node3D center = new Node3D(0.0f, 0.0f, 0.0f);
+        foreach (var i in nodesOfTetra)
+        {
+            center += nodes[i];
+        }
+        center /= 4.0f;
+
+        List<int> edgeOfTetra = new List<int>();
+        edgeOfTetra.Add(edgeJointIndexes[tetra].a);
+        edgeOfTetra.Add(edgeJointIndexes[tetra].b);
+        edgeOfTetra.Add(edgeJointIndexes[tetra].c);
+        edgeOfTetra.Add(edgeJointIndexes[tetra].d);
+        edgeOfTetra.Add(edgeJointIndexes[tetra].e);
+        edgeOfTetra.Add(edgeJointIndexes[tetra].f);
+
+        bool crossed = false;
+        foreach (var i in edgeOfTetra)
+        {
+            double curr = implicitSurface(pos, center, direction);
+            if (curr * last < 0)
+        }
+
+        return false;
+    }
+
+
+    public void propagatingCracks(Vector3 hitPos, Vector3 initialDirection, 
+        double fractureToughness, 
+        double constantFactor, 
+        double strainEnergyDensity)
+    {
+        // some value that cannot caculate now
+        double areaOfFractureSurfaceThatCrossesElement = 1.0;
+
+        int hitTetra = getHitRespondingTetraIndex(hitPos);
+
+        List<int> fracTetra = new List<int>();
+        List<int> nextTetra = new List<int>();
+        List<int> tmpTetra = new List<int>();
+
+        fracTetra.Add(hitTetra);
+        tmpTetra.Add(hitTetra);
+
+        double fracEnergy = 0.0;
+        double strainEnergy = 0.0;
+
+        while (tmpTetra.Count != 0)
+        {
+            foreach (var tetra in tmpTetra)
+            {
+                fracEnergy += 
+                    areaOfFractureSurfaceThatCrossesElement * 
+                    fractureToughness;
+                strainEnergy +=
+                    areaOfFractureSurfaceThatCrossesElement *
+                    constantFactor *
+                    strainEnergyDensity;
+
+                // update frac Edges
+
+                foreach (var neTetra in getNeighborsTetra(tetra))
+                {
+                    if ()
+                }
+            }
+        }
+    }
 }
