@@ -17,8 +17,8 @@ public class VolumeticMesh3D
     public VolumeticMesh3D()
     {
         // this.volume = new List<double>();
-        this.edges = new List<Node3D>();
-        this.nodes = new List<Edge3D>();
+        this.edges = new List<Edge3D>();
+        this.nodes = new List<Node3D>();
         this.damages = new List<Damage3D>();
 
         this.nodeIndexOfTetra = new List<TetrahedronNodes3D>();
@@ -170,8 +170,14 @@ public class VolumeticMesh3D
         var edgeE = tryAddEdge(nodeIndexB, nodeIndexD);
         var edgeF = tryAddEdge(nodeIndexC, nodeIndexD);
 
-        this.nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
-        this.edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+        nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
+        edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+
+        if (nodeIndexOfTetra.Count != edgeIndexOfTetra.Count)
+        {
+            Debug.LogError("volmesh3D internal inconsistency");
+        }
+        return nodeIndexOfTetra.Count - 1;
     }
 
     /// <summary>
@@ -236,7 +242,7 @@ public class VolumeticMesh3D
     /// <param name="tetraIndex">the index of tetrahedron to be judged</param>
     public bool isDamagedTetrahedron(int tetraIndex)
     {
-        foreach (var edge in edgeJointIndexes[tetraIndex])
+        foreach (var edge in edgeIndexOfTetra[tetraIndex])
         {
             foreach (var damage in damages)
             {
