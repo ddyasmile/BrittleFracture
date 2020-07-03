@@ -28,6 +28,8 @@ public class GlassBreakController : MonoBehaviour
         var tetra = GameObject.Find("Tetra");
         var shaderBase = tetra.GetComponent<ShaderBase>();
 
+        Debug.Log("Start transform data");
+
         var tetrahedra = shaderBase.tetraPart.tetrahedra;
         for (int i = 0; i < tetrahedra.Count; i++)
         {
@@ -35,6 +37,19 @@ public class GlassBreakController : MonoBehaviour
             mesh3d.addTetrahedron(vertices[0], vertices[1], vertices[2], vertices[3]);
         }
 
-        mesh3d.propagatingCracks(new Vector3(0.5F, 0.5F, 0), new Vector3(0, 0, 1), 0.5F, 0.5F, 0.5F);
+        Debug.Log("Finish transform data");
+        Debug.Log("Start propagating cracks");
+
+        mesh3d.propagatingCracks(new Vector3(0.5F, 0.5F, 0), new Vector3(0, 0, 1), 0.5F, 0.9F, 0.9F);
+
+        Debug.Log("Finsh propagating cracks");
+        Debug.Log(mesh3d.damages.Count);
+        Debug.Log("Start flood algorithm");
+
+        List<List<int>> fragments = new List<List<int>>();
+        fragments = FloodAlgorithm.floodSplit3D(ref mesh3d);
+
+        Debug.Log("Finish flood algorithm");
+        Debug.Log(fragments.Count);
     }
 }

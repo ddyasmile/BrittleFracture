@@ -19,8 +19,18 @@ public class FloodAlgorithm
         var fragmentCount = 0;
         var nodes = new List<List<int>>();
 
+
+        int ccc0 = 0;
         while (unassignedNodes.Count != 0)
         {
+            if (ccc0++ > 100)
+            {
+                Debug.Log("Too many loops");
+                break;
+            }
+
+            Debug.Log(unassignedNodes.Count);
+
             var newFragmentId = fragmentCount;
             fragmentCount++;
 
@@ -29,14 +39,30 @@ public class FloodAlgorithm
             unassignedNodes.RemoveAt(0);
 
             int targetNode = queue[0];
+
+            int ccc1 = 0;
             while (queue.Count != 0)
             {
-                if (nodes[newFragmentId] == null)
+                if (ccc1++ > 100)
+                {
+                    Debug.Log("Too many loops");
+                    break;
+                }
+
+                if (nodes.Count <= newFragmentId)
                     nodes.Add(new List<int>());
                 nodes[newFragmentId].Add(targetNode);
+
+                int ccc2 = 0;
                 foreach (var ne in mesh.getNeighbors(targetNode))
                 {
-                    if (!queue.Contains(ne))
+                    if (ccc2++ > 100)
+                    {
+                        Debug.Log("Too many loops");
+                        break;
+                    }
+
+                    if (!queue.Contains(ne) && unassignedNodes.Contains(ne))
                     {
                         Edge edge = new Edge(ne, targetNode);
                         if (!mesh.isDamagedEdge(edge))
@@ -75,12 +101,13 @@ public class FloodAlgorithm
             int targetNode = queue[0];
             while (queue.Count != 0)
             {
-                if (nodes[newFragmentId] == null)
+                targetNode = queue[0];
+                if (nodes.Count <= newFragmentId)
                     nodes.Add(new List<int>());
                 nodes[newFragmentId].Add(targetNode);
                 foreach (var ne in mesh.getNeighborNodes(targetNode))
                 {
-                    if (!queue.Contains(ne))
+                    if (!queue.Contains(ne) && unassignedNodes.Contains(ne))
                     {
                         Edge edge = new Edge(ne, targetNode);
                         if (!mesh.isDamagedEdge(edge))

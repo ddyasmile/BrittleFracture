@@ -509,8 +509,9 @@ public class VolumeticMesh3D
                     constantFactor *
                     strainEnergyDensity;
 
+                Debug.Log(fracEnergy < strainEnergy);
                 // update frac Edges
-
+                Debug.Log(getNeighborTetras(tetra).Count);
                 foreach (var neTetra in getNeighborTetras(tetra))
                 {
                     if (isCrossed(center0, initialDirection, neTetra) &&
