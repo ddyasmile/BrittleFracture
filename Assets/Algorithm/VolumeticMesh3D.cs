@@ -343,7 +343,13 @@ public class VolumeticMesh3D
         return minDistanceTetraIndex;
     }
 
-
+    /// <summary>
+    /// implicitSurface
+    /// caculate if a point is on this implicit surface
+    /// </summary>
+    /// <param name="pos">the position of the point to be judged</param>
+    /// <param name="pos0">the center of the element e0</param>
+    /// <param name="direction">the maximum principal stress of the element e0</param>
     public float implicitSurface(Node3D pos, Node3D pos0, Vector3 direction)
     {
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
@@ -369,21 +375,16 @@ public class VolumeticMesh3D
         return 0;
     }
 
-    public bool isCrossed(Vector3 direction, int tetra)
+    /// <summary>
+    /// isCrossed
+    /// judge if the element is crossed by fracture surface
+    /// split edge which cross the fracture surface
+    /// </summary>
+    /// <param name="pos0">the center of the element e0</param>
+    /// <param name="direction">the maximum principal stress of the element e0</param>
+    /// <param name="tetra"> the element to be judged</param>
+    public bool isCrossed(Node3D pos0, Vector3 direction, int tetra)
     {
-        List<int> nodesOfTetra = new List<int>();
-        nodesOfTetra.Add(nodeIndexOfTetra[tetra].a);
-        nodesOfTetra.Add(nodeIndexOfTetra[tetra].b);
-        nodesOfTetra.Add(nodeIndexOfTetra[tetra].c);
-        nodesOfTetra.Add(nodeIndexOfTetra[tetra].d);
-
-        Node3D center = new Node3D(0.0f, 0.0f, 0.0f);
-        foreach (var i in nodesOfTetra)
-        {
-            center += nodes[i];
-        }
-        center /= 4.0f;
-
         List<int> edgeOfTetra = new List<int>();
         edgeOfTetra.Add(edgeIndexOfTetra[tetra].a);
         edgeOfTetra.Add(edgeIndexOfTetra[tetra].b);
@@ -395,16 +396,28 @@ public class VolumeticMesh3D
         bool crossed = false;
         foreach (var i in edgeOfTetra)
         {
-            double curr = implicitSurface(pos0, center, direction);
-            if (curr * last < 0) {
-
+            float fromPos = implicitSurface(nodes[edges[i].from], pos0, direction);
+            float toPos = implicitSurface(nodes[edges[i].to], pos0, direction);
+            if (fromPos * toPos <= 0)
+            {
+                double cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
+                damages.Add(new Damage3D(edges[i], cutPos));
+                crossed = true;
             }
         }
 
-        return false;
+        return crossed;
     }
 
-
+    /// <summary>
+    /// propagatingCracks
+    /// propagate the fracture, split edge which cross the fracture surface
+    /// </summary>
+    /// <param name="hitPos">the hit point</param>
+    /// <param name="initialDirection">the maximum principal stress of the element e0</param>
+    /// <param name="fractureToughness">fracture toughness of the material</param>
+    /// <param name="constantFactor">constant factor that links Ef and Es</param>
+    /// <param name="strainEnergyDensity">the strain energy density of element e</param>
     public void propagatingCracks(Vector3 hitPos, Vector3 initialDirection, 
         double fractureToughness, 
         double constantFactor, 
@@ -414,6 +427,19 @@ public class VolumeticMesh3D
         double areaOfFractureSurfaceThatCrossesElement = 1.0;
 
         int hitTetra = getHitRespondingTetraIndex(hitPos);
+
+        List<int> nodesOfTetra = new List<int>();
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].a);
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].b);
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].c);
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].d);
+
+        Node3D center0 = new Node3D(0.0f, 0.0f, 0.0f);
+        foreach (var i in nodesOfTetra)
+        {
+            center0 += nodes[i];
+        }
+        center0 /= 4.0f;
 
         List<int> fracTetra = new List<int>();
         List<int> nextTetra = new List<int>();
