@@ -305,7 +305,7 @@ public class VolumeticMesh3D
 
             int counter = 0;
 
-            foreach (var node in nodeIndexOfTetra[index].flatten())
+            foreach (var node in nodeIndexOfTetra[i].flatten())
             {
                 if (targetNodes.Contains(node)) ++counter;
             }
