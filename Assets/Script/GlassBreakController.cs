@@ -10,16 +10,17 @@ public class GlassBreakController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
-    public void startBreaking() {
+    public void startBreaking()
+    {
         float energy = energySlider.value;
         Destroy(canvas);
 
@@ -33,5 +34,7 @@ public class GlassBreakController : MonoBehaviour
             var vertices = tetrahedra[i].tetra;
             mesh3d.addTetrahedron(vertices[0], vertices[1], vertices[2], vertices[3]);
         }
+
+        mesh3d.propagatingCracks(new Vector3(0.5F, 0.5F, 0), new Vector3(0, 0, 1), 0.5F, 0.5F, 0.5F);
     }
 }
