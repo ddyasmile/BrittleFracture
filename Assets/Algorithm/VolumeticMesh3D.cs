@@ -193,14 +193,16 @@ public class VolumeticMesh3D
     /// <param name="damage">the damage to insert or find</param>
     public int tryAddDamage(Damage3D damage)
     {
-        if (damages.Contains(damage))
-        {
-            return damages.FindIndex(damag => damag == damage);
-        }
-        else
+        var index = damages.FindIndex(damag => damag == damage);
+
+        if (index == -1)
         {
             damages.Add(damage);
             return damages.Count - 1;
+        }
+        else
+        {
+            return index;
         }
     }
 
