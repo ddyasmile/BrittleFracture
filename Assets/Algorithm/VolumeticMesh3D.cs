@@ -291,11 +291,11 @@ public class VolumeticMesh3D
     /// <param name="index">the index of tetrahedron to be calculated</param>
     public List<int> getNeighborTetras(int index)
     {
-        var targetEdges = new List<int>();
+        var targetNodes = new List<int>();
 
-        foreach (var i in edgeIndexOfTetra[index].flatten())
+        foreach (var i in nodeIndexOfTetra[index].flatten())
         {
-            targetEdges.Add((int)i);
+            targetNodes.Add(i);
         }
 
         var resultIndex = new List<int>();
@@ -305,12 +305,12 @@ public class VolumeticMesh3D
 
             int counter = 0;
 
-            foreach (var i in edgeIndexOfTetra[index].flatten())
+            foreach (var node in nodeIndexOfTetra[index].flatten())
             {
-                if (targetEdges.Contains(edge)) ++counter;
+                if (targetNodes.Contains(node)) ++counter;
             }
 
-            if (counter >= 2)
+            if (counter > 2)
             {
                 resultIndex.Add(i);
             }
