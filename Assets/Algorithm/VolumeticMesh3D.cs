@@ -363,43 +363,9 @@ public class VolumeticMesh3D
 
         Vector3 va, vc;
 
-        if (direction.x != 0 && direction.y != 0)
-        {
-            va = new Vector3(0, direction.z, -direction.y);
-            vc = new Vector3(direction.z, 0, -direction.x);
-        }
-        else if (direction.x != 0 && direction.z != 0)
-        {
-            va = new Vector3(0, direction.z, -direction.y);
-            vc = new Vector3(direction.y, -direction.x, 0);
-        }
-        else if (direction.y != 0 && direction.z != 0)
-        {
-            va = new Vector3(direction.z, 0, -direction.x);
-            vc = new Vector3(direction.y, -direction.x, 0);
-        }
-        else if (direction.x != 0)
-        {
-            va = new Vector3(0, 1, 0);
-            vc = new Vector3(0, 0, 1);
-        }
-        else if (direction.y != 0)
-        {
-            va = new Vector3(1, 0, 0);
-            vc = new Vector3(0, 0, 1);
-        }
-        else if (direction.z != 0)
-        {
-            va = new Vector3(1, 0, 0);
-            vc = new Vector3(0, 1, 0);
-        }
-        else
-        {
-            return 0;
-        }
 
         var offset = pos - pos0;
-        var R = Matrix3D.initMatrixWithColumnVectors(va.normalized, direction, vc.normalized);
+        var R = Matrix3D.initMatrixWithColumnVectors(va.normalized, direction, vc.normalized).getInverseMatrix();
 
         var result = R.multiply(offset);
 
