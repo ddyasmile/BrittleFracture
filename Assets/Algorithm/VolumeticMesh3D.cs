@@ -363,43 +363,28 @@ public class VolumeticMesh3D
 
         Vector3 va, vc;
 
-        if (direction.x != 0 && direction.y != 0)
+        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+
+        direction.Normalize();
+
+        if (direction == up)
         {
-            va = new Vector3(0, direction.z, -direction.y);
-            vc = new Vector3(direction.z, 0, -direction.x);
+            va = new Vector3(1.0f, 0.0f, 0.0f);
+            vc = new Vector3(0.0f, 0.0f, 1.0f);
         }
-        else if (direction.x != 0 && direction.z != 0)
+        else if (direction == -up)
         {
-            va = new Vector3(0, direction.z, -direction.y);
-            vc = new Vector3(direction.y, -direction.x, 0);
-        }
-        else if (direction.y != 0 && direction.z != 0)
-        {
-            va = new Vector3(direction.z, 0, -direction.x);
-            vc = new Vector3(direction.y, -direction.x, 0);
-        }
-        else if (direction.x != 0)
-        {
-            va = new Vector3(0, 1, 0);
-            vc = new Vector3(0, 0, 1);
-        }
-        else if (direction.y != 0)
-        {
-            va = new Vector3(1, 0, 0);
-            vc = new Vector3(0, 0, 1);
-        }
-        else if (direction.z != 0)
-        {
-            va = new Vector3(1, 0, 0);
-            vc = new Vector3(0, 1, 0);
+            va = new Vector3(-1.0f, 0.0f, 0.0f);
+            vc = new Vector3(0.0f, 0.0f, -1.0f);
         }
         else
         {
-            return 0;
+            vc = Vector3.Cross(up, direction).normalized;
+            va = Vector3.Cross(vc, direction).normalized;
         }
 
         var offset = pos - pos0;
-        var R = Matrix3D.initMatrixWithColumnVectors(va.normalized, direction, vc.normalized);
+        var R = Matrix3D.initMatrixWithColumnVectors(va, direction, vc).getInverseMatrix();
 
         var result = R.getInverseMatrix().multiply(offset);
 
