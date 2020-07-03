@@ -512,8 +512,8 @@ public class VolumeticMesh3D
                     }
                 }
             }
-            tmpTetra = nextTetra;
-            nextTetra.Clear();
+            tmpTetra = new List<int>(nextTetra);
+            nextTetra = new List<int>();
         }
     }
 }

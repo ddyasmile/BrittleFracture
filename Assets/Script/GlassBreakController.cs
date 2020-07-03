@@ -49,7 +49,12 @@ public class GlassBreakController : MonoBehaviour
         Debug.Log("Finish transform data");
         Debug.Log("Start propagating cracks");
 
-        mesh3d.propagatingCracks(new Vector3(0.5F, 0.5F, 0), new Vector3(0, 0, 1), 0.5F, 0.9F, 0.9F);
+        for (int i = 0; i < 10; i++)
+        {
+            float x = Random.Range(0, 1);
+            float y = Random.Range(0, 1);
+            mesh3d.propagatingCracks(new Vector3(1F, 1F, 0), new Vector3(x, y, 1), 0.5F, 0.9F, 0.9F);
+        }
 
         Debug.Log("Finsh propagating cracks");
         Debug.Log(mesh3d.damages.Count);
