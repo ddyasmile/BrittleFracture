@@ -304,9 +304,12 @@ public class VolumeticMesh3D
             if (i == index) continue;
 
             int counter = 0;
-            foreach (var edge in edgeIndexOfTetra[i])
+            var edges = edgeIndexOfTetra[i];
+            var edgeList = new List<int> { edges.a, edges.b, edges.c, edges.d, edges.e, edges.f };
+
+            foreach (var edge in edgeList)
             {
-                if (targetEdges.Contains((int)edge)) ++counter;
+                if (targetEdges.Contains(edge)) ++counter;
             }
 
             if (counter >= 2)
