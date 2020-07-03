@@ -305,7 +305,7 @@ public class VolumeticMesh3D
 
             int counter = 0;
 
-            foreach (var node in nodeIndexOfTetra[index].flatten())
+            foreach (var node in nodeIndexOfTetra[i].flatten())
             {
                 if (targetNodes.Contains(node)) ++counter;
             }
@@ -401,7 +401,7 @@ public class VolumeticMesh3D
         var offset = pos - pos0;
         var R = Matrix3D.initMatrixWithColumnVectors(va.normalized, direction, vc.normalized);
 
-        var result = R.multiply(offset);
+        var result = R.getInverseMatrix().multiply(offset);
 
         return result.y - Mathf.PerlinNoise(result.x, result.z);
     }
