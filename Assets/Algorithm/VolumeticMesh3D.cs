@@ -11,6 +11,9 @@ using Edge3D = EdgeNS.Edge;
 
 public class VolumeticMesh3D
 {
+
+    public float noiseFactor = 25;
+
     /// <summary>
     /// default constructor
     /// </summary>
@@ -386,7 +389,8 @@ public class VolumeticMesh3D
 
         var result = R.multiply(offset);
 
-        return result.y - Mathf.PerlinNoise(result.x, result.z);
+        Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
+        return result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor;
     }
 
     /// <summary>
