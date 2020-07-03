@@ -296,7 +296,7 @@ public class VolumeticMesh3D
 
             foreach (var node in nodesTuple)
             {
-                distance += (node - position).sqrMagnitude;
+                distance += (nodes[(int)node] - position).sqrMagnitude;
             }
 
             if (minDistance > distance)
