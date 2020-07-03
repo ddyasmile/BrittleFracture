@@ -346,27 +346,38 @@ public class VolumeticMesh3D
 
     public float implicitSurface(Node3D pos, Node3D pos0, Vector3 direction)
     {
-        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+        direction.Normalize();
 
-        direction = direction.normalized;
-        Vector3 front, side;
-        if (direction == up)
-        {
-            front = new Vector3(1.0f, 0.0f, 0.0f);
-            side = new Vector3(0.0f, 0.0f, 1.0f);
-        }
-        else if (direction == -up)
-        {
-            front = new Vector3(-1.0f, 0.0f, 0.0f);
-            side = new Vector3(0.0f, 0.0f, -1.0f);
-        }
-        else
-        {
-            side = Vector3.Cross(up, direction).normalized;
-            front = Vector3.Cross(side, direction).normalized;
+        Vector3 va, vc;
+        
+        if (direction.x != 0 && direction.y != 0) {            
+            va = new Vector3(0, direction.z, -direction.y);
+            vc = new Vector3(direction.z, 0, -direction.x);
+        } else if (direction.x != 0 && direction.z != 0) {
+            va = new Vector3(0, direction.z, -direction.y);
+            vc = new Vector3(direction.y, -direction.x, 0);
+        } else if (direction.y != 0 && direction.z != 0) {
+            va = new Vector3(direction.z, 0, -direction.x);
+            vc = new Vector3(direction.y, -direction.x, 0);
+        } else if (direction.x != 0) {
+            va = new Vector3(0, 1, 0);
+            vc = new Vector3(0, 0, 1);
+        } else if (direction.y != 0) {
+            va = new Vector3(1, 0, 0);
+            vc = new Vector3(0, 0, 1);
+        } else if (direction.z != 0) {
+            va = new Vector3(1, 0, 0);
+            vc = new Vector3(0, 1, 0);
+        } else {
+            return 0;
         }
 
-        return 0;
+        var offset = pos - pos0;
+        var R = Matrix3D.initMatrixWithColumnVectors(va.normalized, direction, vc.normalized);
+
+        var result = R.multiply(offset);
+
+        return result.y - Mathf.PerlinNoise(result.x, result.z);
     }
 
     public bool isCrossed(Vector3 direction, int tetra)
