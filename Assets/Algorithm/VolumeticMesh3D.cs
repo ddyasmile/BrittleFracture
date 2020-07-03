@@ -366,16 +366,16 @@ public class VolumeticMesh3D
             front = Vector3.Cross(side, direction).normalized;
         }
 
-        return 0.0;
+        return 0;
     }
 
     public bool isCrossed(Vector3 direction, int tetra)
     {
         List<int> nodesOfTetra = new List<int>();
-        nodesOfTetra.Add(nodeJointIndexes[tetra].a);
-        nodesOfTetra.Add(nodeJointIndexes[tetra].b);
-        nodesOfTetra.Add(nodeJointIndexes[tetra].c);
-        nodesOfTetra.Add(nodeJointIndexes[tetra].d);
+        nodesOfTetra.Add(nodeIndexOfTetra[tetra].a);
+        nodesOfTetra.Add(nodeIndexOfTetra[tetra].b);
+        nodesOfTetra.Add(nodeIndexOfTetra[tetra].c);
+        nodesOfTetra.Add(nodeIndexOfTetra[tetra].d);
 
         Node3D center = new Node3D(0.0f, 0.0f, 0.0f);
         foreach (var i in nodesOfTetra)
@@ -385,18 +385,20 @@ public class VolumeticMesh3D
         center /= 4.0f;
 
         List<int> edgeOfTetra = new List<int>();
-        edgeOfTetra.Add(edgeJointIndexes[tetra].a);
-        edgeOfTetra.Add(edgeJointIndexes[tetra].b);
-        edgeOfTetra.Add(edgeJointIndexes[tetra].c);
-        edgeOfTetra.Add(edgeJointIndexes[tetra].d);
-        edgeOfTetra.Add(edgeJointIndexes[tetra].e);
-        edgeOfTetra.Add(edgeJointIndexes[tetra].f);
+        edgeOfTetra.Add(edgeIndexOfTetra[tetra].a);
+        edgeOfTetra.Add(edgeIndexOfTetra[tetra].b);
+        edgeOfTetra.Add(edgeIndexOfTetra[tetra].c);
+        edgeOfTetra.Add(edgeIndexOfTetra[tetra].d);
+        edgeOfTetra.Add(edgeIndexOfTetra[tetra].e);
+        edgeOfTetra.Add(edgeIndexOfTetra[tetra].f);
 
         bool crossed = false;
         foreach (var i in edgeOfTetra)
         {
-            double curr = implicitSurface(pos, center, direction);
-            if (curr * last < 0)
+            double curr = implicitSurface(pos0, center, direction);
+            if (curr * last < 0) {
+
+            }
         }
 
         return false;
@@ -437,9 +439,11 @@ public class VolumeticMesh3D
 
                 // update frac Edges
 
-                foreach (var neTetra in getNeighborsTetra(tetra))
+                foreach (var neTetra in getNeighborTetras(tetra))
                 {
-                    if ()
+                    if (true) {
+
+                    }
                 }
             }
         }
