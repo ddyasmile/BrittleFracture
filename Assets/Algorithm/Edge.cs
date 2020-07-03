@@ -1,15 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace EdgeNS {
-    public class Edge {
+namespace EdgeNS
+{
+    public class Edge
+    {
         public int from, to;
 
-        public Edge(int From, int To) {
+        public Edge(int From, int To)
+        {
             this.from = From;
             this.to = To;
         }
-// override object.Equals
+
+        // override object.Equals
         public override bool Equals(object obj)
         {
             //
@@ -18,22 +22,27 @@ namespace EdgeNS {
             // and also the guidance for operator== at
             //   http://go.microsoft.com/fwlink/?LinkId=85238
             //
-            
+
             if (obj == null || GetType() != obj.GetType())
             {
                 return false;
             }
 
             var another = (Edge)obj;
-            if (this.from == another.from && this.to == another.to) {
+            if (this.from == another.from && this.to == another.to)
+            {
                 return true;
-            } else if (this.from == another.to && this.to == another.from) {
+            }
+            else if (this.from == another.to && this.to == another.from)
+            {
                 return true;
-            } else {
+            }
+            else
+            {
                 return false;
             }
         }
-        
+
         // override object.GetHashCode
         public override int GetHashCode()
         {
