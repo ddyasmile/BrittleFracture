@@ -37,8 +37,6 @@ public class GlassBreakController : MonoBehaviour
         var tetra = GameObject.Find("Tetra");
         var shaderBase = tetra.GetComponent<ShaderBase>();
 
-        Debug.Log("Start transform data");
-
         var tetrahedra = shaderBase.tetraPart.tetrahedra;
         for (int i = 0; i < tetrahedra.Count; i++)
         {
@@ -46,24 +44,26 @@ public class GlassBreakController : MonoBehaviour
             mesh3d.addTetrahedron(vertices[0], vertices[1], vertices[2], vertices[3]);
         }
 
-        Debug.Log("Finish transform data");
-        Debug.Log("Start propagating cracks");
-
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
         {
             float x = Random.Range(0, 1);
             float y = Random.Range(0, 1);
             mesh3d.propagatingCracks(new Vector3(1F, 1F, 0), new Vector3(x, y, 1), 0.5F, 0.9F, 0.9F);
         }
 
-        Debug.Log("Finsh propagating cracks");
-        Debug.Log(mesh3d.damages.Count);
-        Debug.Log("Start flood algorithm");
-
         List<List<int>> fragments = new List<List<int>>();
         fragments = FloodAlgorithm.floodSplit3D(ref mesh3d);
 
-        Debug.Log("Finish flood algorithm");
-        Debug.Log(fragments.Count);
+        foreach (int i in mesh3d.damagedNodes)
+        {
+            Tetrahedron fracTetra = mesh3d.getFractureTetra(i);
+            Plane fracPlane = mesh3d.getFracturePlane(i);
+            TetraPart part1, part2;
+            fracTetra.Split(fracPlane, out part1, out part2);
+
+            int index = tetrahedra.FindIndex(tetr => tetr.Equals(fracTetra));
+            /// remove fracTetra from tetrahedra
+            /// then append part1 and part2 into tetrahedra
+        }
     }
 }

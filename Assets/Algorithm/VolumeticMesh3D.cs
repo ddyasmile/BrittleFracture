@@ -84,6 +84,11 @@ public class VolumeticMesh3D
     /// </summary>
     public List<Damage3D> damages;
 
+    /// <summary>
+    /// damagedNodes
+    /// </summary>
+    public List<int> damagedNodes;
+
 
     /// <summary>
     /// calculateVolumes
@@ -234,6 +239,27 @@ public class VolumeticMesh3D
         {
             damages.Add(damage);
             return damages.Count - 1;
+        }
+        else
+        {
+            return index;
+        }
+    }
+
+    /// <summary>
+    /// tryAddDamegedNode
+    /// find the damaged tetra in current damages.
+    /// if exists, return its index
+    /// if not, insert it and return its new index
+    /// </summary>
+    /// <param name="damage">the damage to insert or find</param>
+    public int tryAddDamegedNode(int tetra)
+    {
+        var index = damagedNodes.FindIndex(tetr => tetr == tetra);
+        if (index == -1)
+        {
+            damagedNodes.Add(tetra);
+            return nodes.Count - 1;
         }
         else
         {
@@ -478,7 +504,14 @@ public class VolumeticMesh3D
                 float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
                 Debug.Log(string.Format("damage cutPoint: {0}", cutPos));
                 tryAddDamage(new Damage3D(edges[i], cutPos));
+                tryAddDamegedNode(tetra);
                 crossed = true;
+
+                foreach (var j in edgeOfTetra)
+                {
+                    tryAddDamage(new Damage3D(edges[j], 0.5));
+                }
+                break;
             }
         }
 
@@ -563,5 +596,64 @@ public class VolumeticMesh3D
             tmpTetra = new List<int>(nextTetra);
             nextTetra = new List<int>();
         }
+    }
+
+
+    public Plane getFracturePlane(int tetra)
+    {
+        List<Node3D> fracPlane = new List<Node3D>();
+
+        List<int> edgeList = edgeIndexOfTetra[tetra].flatten();
+        for (int i = 0; i < 3; i++)
+        {
+            int indexDamage = tryAddDamage(new Damage3D(edges[edgeList[2*i]], 0.0f));
+            double cutPos = damages[indexDamage].cutPosition;
+            Node3D p1 = nodes[damages[indexDamage].edge.from];
+            Node3D p2 = nodes[damages[indexDamage].edge.to];
+            Node3D p3 = (p2 - p1) * (float)cutPos + p1;
+
+            fracPlane.Add(p3);
+        }
+
+        return new Plane(fracPlane[0], fracPlane[1], fracPlane[2]);
+    }
+
+    public Tetrahedron getFractureTetra(int tetra)
+    {
+        List<Vector3> tetrahedron = new List<Vector3>();
+        List<int> index = nodeIndexOfTetra[tetra].flatten();
+        foreach (int i in index)
+        {
+            tetrahedron.Add(nodes[i]);
+        }
+        return new Tetrahedron(tetrahedron);
+    }
+
+    public List<TetraPart> getTetraParts(List<List<int>> fragments)
+    {
+        List<TetraPart> tetraParts = new List<TetraPart>(fragments.Count);
+
+        for (int i = 0; i < nodeIndexOfTetra.Count; i++)
+        {
+            if (!damagedNodes.Contains(i))
+            {
+                int node = nodeIndexOfTetra[i].a;
+                for (int j = 0; j < fragments.Count; j++)
+                {
+                    if (fragments[j].Contains(node))
+                    {
+                        List<Vector3> tetrList = new List<Vector3>();
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].a]);
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].b]);
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].c]);
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].d]);
+                        tetraParts[j].PushBackTetra(tetrList);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return tetraParts;
     }
 }
