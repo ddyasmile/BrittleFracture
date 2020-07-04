@@ -11,6 +11,9 @@ using Edge3D = EdgeNS.Edge;
 
 public class VolumeticMesh3D
 {
+
+    public float noiseFactor = 25;
+
     /// <summary>
     /// default constructor
     /// </summary>
@@ -77,6 +80,11 @@ public class VolumeticMesh3D
     /// </summary>
     public List<Damage3D> damages;
 
+    /// <summary>
+    /// damagedNodes
+    /// </summary>
+    public List<int> damagedNodes;
+
 
     /// <summary>
     /// calculateVolumes
@@ -101,14 +109,15 @@ public class VolumeticMesh3D
     /// <param name="node">the node to insert or find</param>
     public int tryAddNode(Node3D node)
     {
-        if (nodes.Contains(node))
-        {
-            return nodes.FindIndex(nod => nod == node);
-        }
-        else
+        var index = nodes.FindIndex(nod => nod == node);
+        if (index == -1)
         {
             nodes.Add(node);
             return nodes.Count - 1;
+        }
+        else
+        {
+            return index;
         }
     }
 
@@ -135,14 +144,15 @@ public class VolumeticMesh3D
     /// <param name="edge">the edge to insert or find</param>
     public int tryAddEdge(Edge3D edge)
     {
-        if (edges.Contains(edge))
-        {
-            return edges.FindIndex(edg => edg == edge);
-        }
-        else
+        var index = edges.FindIndex(edg => edg == edge);
+        if (index == -1)
         {
             edges.Add(edge);
             return edges.Count - 1;
+        }
+        else
+        {
+            return index;
         }
     }
 
@@ -170,6 +180,8 @@ public class VolumeticMesh3D
         var edgeE = tryAddEdge(nodeIndexB, nodeIndexD);
         var edgeF = tryAddEdge(nodeIndexC, nodeIndexD);
 
+        // Debug.Log(string.Format("{0} {1} {2} {3} {4} {5}", edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+
         nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
         edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
 
@@ -189,14 +201,37 @@ public class VolumeticMesh3D
     /// <param name="damage">the damage to insert or find</param>
     public int tryAddDamage(Damage3D damage)
     {
-        if (damages.Contains(damage))
-        {
-            return damages.FindIndex(damag => damag == damage);
-        }
-        else
+        var index = damages.FindIndex(damag => damag == damage);
+
+        if (index == -1)
         {
             damages.Add(damage);
             return damages.Count - 1;
+        }
+        else
+        {
+            return index;
+        }
+    }
+
+    /// <summary>
+    /// tryAddDamegedNode
+    /// find the damaged tetra in current damages.
+    /// if exists, return its index
+    /// if not, insert it and return its new index
+    /// </summary>
+    /// <param name="damage">the damage to insert or find</param>
+    public int tryAddDamegedNode(int tetra)
+    {
+        var index = damagedNodes.FindIndex(tetr => tetr == tetra);
+        if (index == -1)
+        {
+            damagedNodes.Add(tetra);
+            return nodes.Count - 1;
+        }
+        else
+        {
+            return index;
         }
     }
 
@@ -285,11 +320,11 @@ public class VolumeticMesh3D
     /// <param name="index">the index of tetrahedron to be calculated</param>
     public List<int> getNeighborTetras(int index)
     {
-        var targetEdges = new List<int>();
+        var targetNodes = new List<int>();
 
-        foreach (var i in edgeIndexOfTetra[index])
+        foreach (var i in nodeIndexOfTetra[index].flatten())
         {
-            targetEdges.Add((int)i);
+            targetNodes.Add(i);
         }
 
         var resultIndex = new List<int>();
@@ -298,9 +333,10 @@ public class VolumeticMesh3D
             if (i == index) continue;
 
             int counter = 0;
-            foreach (var edge in edgeIndexOfTetra[i])
+
+            foreach (var node in nodeIndexOfTetra[i].flatten())
             {
-                if (targetEdges.Contains((int)edge)) ++counter;
+                if (targetNodes.Contains(node)) ++counter;
             }
 
             if (counter > 2)
@@ -343,4 +379,205 @@ public class VolumeticMesh3D
         return minDistanceTetraIndex;
     }
 
+    /// <summary>
+    /// implicitSurface
+    /// caculate if a point is on this implicit surface
+    /// </summary>
+    /// <param name="pos">the position of the point to be judged</param>
+    /// <param name="pos0">the center of the element e0</param>
+    /// <param name="direction">the maximum principal stress of the element e0</param>
+    public float implicitSurface(Node3D pos, Node3D pos0, Vector3 direction)
+    {
+        Vector3 va, vc;
+
+        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+
+        direction.Normalize();
+
+        if (direction == up)
+        {
+            va = new Vector3(1.0f, 0.0f, 0.0f);
+            vc = new Vector3(0.0f, 0.0f, 1.0f);
+        }
+        else if (direction == -up)
+        {
+            va = new Vector3(-1.0f, 0.0f, 0.0f);
+            vc = new Vector3(0.0f, 0.0f, -1.0f);
+        }
+        else
+        {
+            vc = Vector3.Cross(up, direction).normalized;
+            va = Vector3.Cross(vc, direction).normalized;
+        }
+
+        var offset = pos - pos0;
+        var R = Matrix3D.initMatrixWithColumnVectors(va, direction, vc).getInverseMatrix();
+
+        var result = R.multiply(offset);
+        var noise = Mathf.PerlinNoise(result.x, result.z);
+
+        Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
+        return result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor;
+    }
+
+    /// <summary>
+    /// isCrossed
+    /// judge if the element is crossed by fracture surface
+    /// split edge which cross the fracture surface
+    /// </summary>
+    /// <param name="pos0">the center of the element e0</param>
+    /// <param name="direction">the maximum principal stress of the element e0</param>
+    /// <param name="tetra"> the element to be judged</param>
+    public bool isCrossed(Node3D pos0, Vector3 direction, int tetra)
+    {
+        // Debug.Log(tetra);
+        // Debug.Log(edgeIndexOfTetra[tetra].a);
+        // Debug.Log(edgeIndexOfTetra[tetra].b);
+        // Debug.Log(edgeIndexOfTetra[tetra].c);
+        // Debug.Log(edgeIndexOfTetra[tetra].d);
+        // Debug.Log(edgeIndexOfTetra[tetra].e);
+        // Debug.Log(edgeIndexOfTetra[tetra].f);
+
+        List<int> edgeOfTetra = edgeIndexOfTetra[tetra].flatten();
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].a);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].b);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].c);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].d);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].e);
+        // edgeOfTetra.Add(edgeIndexOfTetra[tetra].f);
+
+        bool crossed = false;
+        foreach (var i in edgeOfTetra)
+        {
+            // Debug.Log(i); Debug.Log(edges[i].from); Debug.Log("Bar");
+            float fromPos = implicitSurface(nodes[edges[i].from], pos0, direction);
+            float toPos = implicitSurface(nodes[edges[i].to], pos0, direction);
+            if (fromPos * toPos <= 0)
+            {
+                float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
+                tryAddDamage(new Damage3D(edges[i], cutPos));
+                tryAddDamegedNode(tetra);
+                crossed = true;
+
+                foreach (var j in edgeOfTetra)
+                {
+                    tryAddDamage(new Damage3D(edges[j], 0.5));
+                }
+                break;
+            }
+        }
+
+        return crossed;
+    }
+
+    /// <summary>
+    /// propagatingCracks
+    /// propagate the fracture, split edge which cross the fracture surface
+    /// </summary>
+    /// <param name="hitPos">the hit point</param>
+    /// <param name="initialDirection">the maximum principal stress of the element e0</param>
+    /// <param name="fractureToughness">fracture toughness of the material</param>
+    /// <param name="constantFactor">constant factor that links Ef and Es</param>
+    /// <param name="strainEnergyDensity">the strain energy density of element e</param>
+    public void propagatingCracks(Vector3 hitPos,
+        Vector3 initialDirection,
+        float fractureToughness,
+        float constantFactor,
+        float strainEnergyDensity)
+    {
+        // Debug.Log(nodeIndexOfTetra.Count); //3072
+        // Debug.Log(edgeIndexOfTetra.Count); //3072
+        // Debug.Log(nodes.Count);            //729
+        // Debug.Log(edges.Count);            //4856
+        // Debug.Log(damages.Count);
+
+        // some value that cannot caculate now
+        float areaOfFractureSurfaceThatCrossesElement = 1.0f;
+
+        int hitTetra = getHitRespondingTetraIndex(hitPos);
+
+        List<int> nodesOfTetra = new List<int>();
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].a);
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].b);
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].c);
+        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].d);
+
+        Node3D center0 = new Node3D(0.0f, 0.0f, 0.0f);
+        foreach (var i in nodesOfTetra)
+        {
+            center0 += nodes[i];
+        }
+        center0 /= 4.0f;
+
+        List<int> fracTetra = new List<int>();
+        List<int> nextTetra = new List<int>();
+        List<int> tmpTetra = new List<int>();
+
+        fracTetra.Add(hitTetra);
+        tmpTetra.Add(hitTetra);
+
+        float fracEnergy = 0.0f;
+        float strainEnergy = 0.0f;
+
+        while (tmpTetra.Count != 0)
+        {
+            foreach (var tetra in tmpTetra)
+            {
+                fracEnergy +=
+                    areaOfFractureSurfaceThatCrossesElement *
+                    fractureToughness;
+                strainEnergy +=
+                    areaOfFractureSurfaceThatCrossesElement *
+                    constantFactor *
+                    strainEnergyDensity;
+
+                Debug.Log(fracEnergy < strainEnergy);
+                // update frac Edges
+                Debug.Log(getNeighborTetras(tetra).Count);
+                foreach (var neTetra in getNeighborTetras(tetra))
+                {
+                    if (isCrossed(center0, initialDirection, neTetra) &&
+                        fracEnergy < strainEnergy &&
+                        !fracTetra.Contains(neTetra))
+                    {
+                        fracTetra.Add(neTetra);
+                        nextTetra.Add(neTetra);
+                    }
+                }
+            }
+            tmpTetra = new List<int>(nextTetra);
+            nextTetra = new List<int>();
+        }
+    }
+
+
+    public Plane getFracturePlane(int tetra)
+    {
+        List<Node3D> fracPlane = new List<Node3D>();
+
+        List<int> edgeList = edgeIndexOfTetra[tetra].flatten();
+        for (int i = 0; i < 3; i++)
+        {
+            int indexDamage = tryAddDamage(new Damage3D(edges[edgeList[2*i]], 0.0f));
+            double cutPos = damages[indexDamage].cutPosition;
+            Node3D p1 = nodes[damages[indexDamage].edge.from];
+            Node3D p2 = nodes[damages[indexDamage].edge.to];
+            Node3D p3 = (p2 - p1) * (float)cutPos + p1;
+
+            fracPlane.Add(p3);
+        }
+
+        return new Plane(fracPlane[0], fracPlane[1], fracPlane[2]);
+    }
+
+    public Tetrahedron getFractureTetra(int tetra)
+    {
+        List<Vector3> tetrahedron = new List<Vector3>();
+        List<int> index = nodeIndexOfTetra[tetra].flatten();
+        foreach (int i in index)
+        {
+            tetrahedron.Add(nodes[i]);
+        }
+        return new Tetrahedron(tetrahedron);
+    }
 }
