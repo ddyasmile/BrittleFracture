@@ -80,12 +80,19 @@ public class GlassBreakController : MonoBehaviour
                 tetraParts[1 - frag].Append(part1);
             }
         }
-        var sb = GameObject.Find("Tetra").GetComponent<ShaderBase>();
+
+        GameObject tetraGameObject = GameObject.Find("Tetra");
+        var sb = tetraGameObject.GetComponent<ShaderBase>();
         sb.tetraPart = tetraParts[0];
         sb.FlushTetraPart();
-        var sb2 = new GameObject().AddComponent<ShaderBase>();
+
+        GameObject newGameObject = new GameObject();
+        var sb2 = newGameObject.AddComponent<ShaderBase>();
         sb2.material = sb.material;
         sb2.tetraPart = tetraParts[1];
         sb2.FlushTetraPart();
+
+        tetraGameObject.AddComponent<Rigidbody>();
+        newGameObject.AddComponent<Rigidbody>();
     }
 }
