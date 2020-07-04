@@ -506,11 +506,11 @@ public class VolumeticMesh3D
                 tryAddDamagedNode(tetra);
                 crossed = true;
 
-                foreach (var j in edgeOfTetra)
-                {
-                    tryAddDamage(new Damage3D(edges[j], 0.5));
-                }
-                break;
+                // foreach (var j in edgeOfTetra)
+                // {
+                //     tryAddDamage(new Damage3D(edges[j], 0.5));
+                // }
+                // break;
             }
         }
 
@@ -632,7 +632,11 @@ public class VolumeticMesh3D
         out List<Tetrahedron> fracTetras, 
         out List<Plane> fracPlanes)
     {
-        List<TetraPart> tetraParts = new List<TetraPart>(fragments.Count);
+        List<TetraPart> tetraParts = new List<TetraPart>();
+        for (int i = 0; i < fragments.Count; i++)
+        {
+            tetraParts.Add(new TetraPart());
+        }
 
         for (int i = 0; i < nodeIndexOfTetra.Count; i++)
         {

@@ -54,16 +54,8 @@ public class GlassBreakController : MonoBehaviour
         List<List<int>> fragments = new List<List<int>>();
         fragments = FloodAlgorithm.floodSplit3D(ref mesh3d);
 
-        foreach (int i in mesh3d.damagedNodes)
-        {
-            Tetrahedron fracTetra = mesh3d.getFractureTetra(i);
-            Plane fracPlane = mesh3d.getFracturePlane(i);
-            TetraPart part1, part2;
-            fracTetra.Split(fracPlane, out part1, out part2);
-
-            int index = tetrahedra.FindIndex(tetr => tetr.Equals(fracTetra));
-            /// remove fracTetra from tetrahedra
-            /// then append part1 and part2 into tetrahedra
-        }
+        List<Tetrahedron> fracTetras;
+        List<Plane> fracPlanes;
+        List<TetraPart> tetraParts = mesh3d.getTetraParts(fragments, out fracTetras, out fracPlanes);
     }
 }
