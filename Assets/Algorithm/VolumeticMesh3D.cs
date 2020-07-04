@@ -503,7 +503,7 @@ public class VolumeticMesh3D
                 float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
                 Debug.Log(string.Format("damage cutPoint: {0}", cutPos));
                 tryAddDamage(new Damage3D(edges[i], cutPos));
-                tryAddDamegedNode(tetra);
+                tryAddDamagedNode(tetra);
                 crossed = true;
 
                 foreach (var j in edgeOfTetra)
