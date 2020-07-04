@@ -23,9 +23,12 @@ public class VolumeticMesh3D
         this.edges = new List<Edge3D>();
         this.nodes = new List<Node3D>();
         this.damages = new List<Damage3D>();
+        this.damagedNodes = new List<int>();
 
         this.nodeIndexOfTetra = new List<TetrahedronNodes3D>();
         this.edgeIndexOfTetra = new List<TetrahedronEdges3D>();
+        this.tetraIndexByNodeIndex = new Dictionary<TetrahedronNodes3D, int>();
+        this.tetraIndexByEdgeIndex = new Dictionary<TetrahedronEdges3D, int>();
     }
 
     /// <summary>
@@ -33,12 +36,14 @@ public class VolumeticMesh3D
     /// containing 4 node indexes of a tetra.
     /// </summary>
     public List<TetrahedronNodes3D> nodeIndexOfTetra;
+    private Dictionary<TetrahedronNodes3D, int> tetraIndexByNodeIndex;
 
     /// <summary>
     /// VM - L
     /// containing 6 edge indexes of a tetra.
     /// </summary>
     public List<TetrahedronEdges3D> edgeIndexOfTetra;
+    private Dictionary<TetrahedronEdges3D, int> tetraIndexByEdgeIndex;
 
     // @ all lists above contains index values
     // @ all lists below contains literal values
@@ -182,14 +187,42 @@ public class VolumeticMesh3D
 
         // Debug.Log(string.Format("{0} {1} {2} {3} {4} {5}", edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
 
-        nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
-        edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+        var tetraNodes = new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD);
+        var tetraEdges = new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF);
+        var index = nodeIndexOfTetra.Count - 1;
+
+        nodeIndexOfTetra.Add(tetraNodes);
+        edgeIndexOfTetra.Add(tetraEdges);
+
+        tetraIndexByNodeIndex.Add(tetraNodes, index);
+        tetraIndexByEdgeIndex.Add(tetraEdges, index);
 
         if (nodeIndexOfTetra.Count != edgeIndexOfTetra.Count)
         {
             Debug.LogError("volmesh3D internal inconsistency");
         }
-        return nodeIndexOfTetra.Count - 1;
+
+        return index;
+    }
+
+    public int getTetrahedronIndex(Node3D nodeA, Node3D nodeB, Node3D nodeC, Node3D nodeD)
+    {
+        var nodeIndexA = nodes.FindIndex(node => node == nodeA);
+        var nodeIndexB = nodes.FindIndex(node => node == nodeA);
+        var nodeIndexC = nodes.FindIndex(node => node == nodeA);
+        var nodeIndexD = nodes.FindIndex(node => node == nodeA);
+
+        if (nodeIndexA == -1 || nodeIndexB == -1 || nodeIndexC == -1 || nodeIndexD == -1)
+        {
+            return -1;
+        }
+
+        var tuple = new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD);
+        if (tetraIndexByNodeIndex.ContainsKey(tuple))
+        {
+            return tetraIndexByNodeIndex[tuple];
+        }
+        return -1;
     }
 
     /// <summary>
@@ -215,13 +248,11 @@ public class VolumeticMesh3D
     }
 
     /// <summary>
-    /// tryAddDamegedNode
-    /// find the damaged tetra in current damages.
-    /// if exists, return its index
-    /// if not, insert it and return its new index
+    /// tryAddDamagedNode
+    ///
     /// </summary>
-    /// <param name="damage">the damage to insert or find</param>
-    public int tryAddDamegedNode(int tetra)
+    /// <param name="tetra"></param>
+    public int tryAddDamagedNode(int tetra)
     {
         var index = damagedNodes.FindIndex(tetr => tetr == tetra);
         if (index == -1)
@@ -277,7 +308,7 @@ public class VolumeticMesh3D
     /// <param name="tetraIndex">the index of tetrahedron to be judged</param>
     public bool isDamagedTetrahedron(int tetraIndex)
     {
-        foreach (var edge in edgeIndexOfTetra[tetraIndex])
+        foreach (var edge in edgeIndexOfTetra[tetraIndex].flatten())
         {
             foreach (var damage in damages)
             {
@@ -320,14 +351,9 @@ public class VolumeticMesh3D
     /// <param name="index">the index of tetrahedron to be calculated</param>
     public List<int> getNeighborTetras(int index)
     {
-        var targetNodes = new List<int>();
-
-        foreach (var i in nodeIndexOfTetra[index].flatten())
-        {
-            targetNodes.Add(i);
-        }
-
+        var targetNodes = nodeIndexOfTetra[index].flatten();
         var resultIndex = new List<int>();
+
         for (int i = 0; i < edgeIndexOfTetra.Count; ++i)
         {
             if (i == index) continue;
@@ -348,6 +374,26 @@ public class VolumeticMesh3D
         return resultIndex;
     }
 
+    /// <summary>
+    /// isNeighborTetras
+    /// judge if two tetras are neighbors
+    /// </summary>
+    /// <param name="index1">index of one tetrahedron to be judged</param>
+    /// <param name="index2">index of one tetrahedron to be judged</param>
+    public bool isNeighborTetras(int index1, int index2)
+    {
+        var targetNodes = nodeIndexOfTetra[index1].flatten();
+
+        int counter = 0;
+
+        foreach (var node in nodeIndexOfTetra[index2].flatten())
+        {
+            if (targetNodes.Contains(node)) ++counter;
+        }
+
+        return counter > 2;
+    }
+
 
     /// <summary>
     /// getHitRespondingTetraIndex
@@ -364,7 +410,7 @@ public class VolumeticMesh3D
             var nodesTuple = nodeIndexOfTetra[i];
             float distance = 0;
 
-            foreach (var node in nodesTuple)
+            foreach (var node in nodesTuple.flatten())
             {
                 distance += (nodes[(int)node] - position).sqrMagnitude;
             }
@@ -416,7 +462,7 @@ public class VolumeticMesh3D
         var result = R.multiply(offset);
         var noise = Mathf.PerlinNoise(result.x, result.z);
 
-        Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
+        // Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
         return result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor;
     }
 
@@ -455,8 +501,9 @@ public class VolumeticMesh3D
             if (fromPos * toPos <= 0)
             {
                 float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
+                Debug.Log(string.Format("damage cutPoint: {0}", cutPos));
                 tryAddDamage(new Damage3D(edges[i], cutPos));
-                tryAddDamegedNode(tetra);
+                tryAddDamagedNode(tetra);
                 crossed = true;
 
                 foreach (var j in edgeOfTetra)
@@ -496,11 +543,11 @@ public class VolumeticMesh3D
 
         int hitTetra = getHitRespondingTetraIndex(hitPos);
 
-        List<int> nodesOfTetra = new List<int>();
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].a);
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].b);
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].c);
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].d);
+        List<int> nodesOfTetra = nodeIndexOfTetra[hitTetra].flatten();
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].a);
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].b);
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].c);
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].d);
 
         Node3D center0 = new Node3D(0.0f, 0.0f, 0.0f);
         foreach (var i in nodesOfTetra)
@@ -558,7 +605,7 @@ public class VolumeticMesh3D
         List<int> edgeList = edgeIndexOfTetra[tetra].flatten();
         for (int i = 0; i < 3; i++)
         {
-            int indexDamage = tryAddDamage(new Damage3D(edges[edgeList[2*i]], 0.0f));
+            int indexDamage = tryAddDamage(new Damage3D(edges[edgeList[2 * i]], 0.0f));
             double cutPos = damages[indexDamage].cutPosition;
             Node3D p1 = nodes[damages[indexDamage].edge.from];
             Node3D p2 = nodes[damages[indexDamage].edge.to];

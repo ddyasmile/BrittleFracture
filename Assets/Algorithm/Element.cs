@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace ElementNS
 {
-    public struct Tuple3D<T> : IEnumerable
+    public struct Tuple3D<T>
     {
         public T a, b, c;
 
@@ -19,39 +20,39 @@ namespace ElementNS
             return new List<T> { a, b, c };
         }
 
-        public IEnumerator GetEnumerator()
+
+        // override object.Equals
+        public override bool Equals(object obj)
         {
-            return new Tuple3DEnum(a, b, c);
+            //
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+
+            var left = flatten();
+            left.Sort();
+            var right = ((Tuple3D<T>)obj).flatten();
+            right.Sort();
+
+            return left.SequenceEqual(right);
         }
 
-        public class Tuple3DEnum : IEnumerator
+        // override object.GetHashCode
+        public override int GetHashCode()
         {
-            private List<T> _list;
-            private int _index = -1;
-
-            public Tuple3DEnum(T a, T b, T c)
-            {
-                _list = new List<T>(){
-                    a, b, c
-                };
-            }
-
-            public object Current => _list[_index];
-
-            public bool MoveNext()
-            {
-                _index++;
-                return _index < _list.Count;
-            }
-
-            public void Reset()
-            {
-                _index = 0;
-            }
+            return new HashSet<T> { a, b, c }.GetHashCode();
         }
     }
 
-    public struct Tuple4D<T> : IEnumerable
+    public struct Tuple4D<T>
     {
         public T a, b, c, d;
 
@@ -68,39 +69,36 @@ namespace ElementNS
             return new List<T> { a, b, c, d };
         }
 
-        public IEnumerator GetEnumerator()
+        public override bool Equals(object obj)
         {
-            return new Tuple4DEnum(a, b, c, d);
+            //
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var left = flatten();
+            left.Sort();
+            var right = ((Tuple4D<T>)obj).flatten();
+            right.Sort();
+
+            return left.SequenceEqual(right);
         }
 
-        public class Tuple4DEnum : IEnumerator
+        // override object.GetHashCode
+        public override int GetHashCode()
         {
-            private List<T> _list;
-            private int _index = -1;
-
-            public Tuple4DEnum(T a, T b, T c, T d)
-            {
-                _list = new List<T>(){
-                    a, b, c, d
-                };
-            }
-
-            public object Current => _list[_index];
-
-            public bool MoveNext()
-            {
-                _index++;
-                return _index < _list.Count;
-            }
-
-            public void Reset()
-            {
-                _index = 0;
-            }
+            return new HashSet<T> { a, b, c, d }.GetHashCode();
         }
     }
 
-    public struct Tuple6D<T> : IEnumerable
+    public struct Tuple6D<T>
     {
         public T a, b, c, d, e, f;
 
@@ -114,41 +112,37 @@ namespace ElementNS
             this.f = F;
         }
 
-
         public List<T> flatten()
         {
             return new List<T> { a, b, c, d, e, f };
         }
 
-        public IEnumerator GetEnumerator()
+        public override bool Equals(object obj)
         {
-            return new Tuple6DEnum(a, b, c, d, e, f);
+            //
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var left = flatten();
+            left.Sort();
+            var right = ((Tuple6D<T>)obj).flatten();
+            right.Sort();
+
+            return left.SequenceEqual(right);
         }
 
-        public class Tuple6DEnum : IEnumerator
+        // override object.GetHashCode
+        public override int GetHashCode()
         {
-            private List<T> _list;
-            private int _index = -1;
-
-            public Tuple6DEnum(T a, T b, T c, T d, T e, T f)
-            {
-                _list = new List<T>(){
-                    a, b, c, d, e, f
-                };
-            }
-
-            public object Current => _list[_index];
-
-            public bool MoveNext()
-            {
-                _index++;
-                return _index < _list.Count;
-            }
-
-            public void Reset()
-            {
-                _index = 0;
-            }
+            return new HashSet<T> { a, b, c, d, e, f }.GetHashCode();
         }
     }
 }
