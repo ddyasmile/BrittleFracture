@@ -46,7 +46,7 @@ namespace EdgeNS
         // override object.GetHashCode
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return new HashSet<int> { from, to }.GetHashCode();
         }
     }
 }

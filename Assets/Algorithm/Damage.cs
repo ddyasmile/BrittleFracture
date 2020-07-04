@@ -81,6 +81,6 @@ public class Damage3D
     // override object.GetHashCode
     public override int GetHashCode()
     {
-        return base.GetHashCode();
+        return edge.GetHashCode();
     }
 }
