@@ -581,7 +581,9 @@ public class VolumeticMesh3D
         return new Tetrahedron(tetrahedron);
     }
 
-    public List<TetraPart> getTetraParts(List<List<int>> fragments)
+    public List<TetraPart> getTetraParts(List<List<int>> fragments, 
+        out List<Tetrahedron> fracTetras, 
+        out List<Plane> fracPlanes)
     {
         List<TetraPart> tetraParts = new List<TetraPart>(fragments.Count);
 
@@ -604,6 +606,16 @@ public class VolumeticMesh3D
                     }
                 }
             }
+        }
+
+        fracTetras = new List<Tetrahedron>();
+        fracPlanes = new List<Plane>();
+        foreach (int i in damagedNodes)
+        {
+            Tetrahedron fracTetra = getFractureTetra(i);
+            Plane fracPlane = getFracturePlane(i);
+            fracTetras.Add(fracTetra);
+            fracPlanes.Add(fracPlane);
         }
 
         return tetraParts;
