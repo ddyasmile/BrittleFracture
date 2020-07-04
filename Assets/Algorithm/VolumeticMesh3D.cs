@@ -23,6 +23,7 @@ public class VolumeticMesh3D
         this.edges = new List<Edge3D>();
         this.nodes = new List<Node3D>();
         this.damages = new List<Damage3D>();
+        this.damagedNodes = new List<int>();
 
         this.nodeIndexOfTetra = new List<TetrahedronNodes3D>();
         this.edgeIndexOfTetra = new List<TetrahedronEdges3D>();
@@ -247,13 +248,11 @@ public class VolumeticMesh3D
     }
 
     /// <summary>
-    /// tryAddDamegedNode
-    /// find the damaged tetra in current damages.
-    /// if exists, return its index
-    /// if not, insert it and return its new index
+    /// tryAddDamagedNode
+    ///
     /// </summary>
-    /// <param name="damage">the damage to insert or find</param>
-    public int tryAddDamegedNode(int tetra)
+    /// <param name="tetra"></param>
+    public int tryAddDamagedNode(int tetra)
     {
         var index = damagedNodes.FindIndex(tetr => tetr == tetra);
         if (index == -1)
@@ -606,7 +605,7 @@ public class VolumeticMesh3D
         List<int> edgeList = edgeIndexOfTetra[tetra].flatten();
         for (int i = 0; i < 3; i++)
         {
-            int indexDamage = tryAddDamage(new Damage3D(edges[edgeList[2*i]], 0.0f));
+            int indexDamage = tryAddDamage(new Damage3D(edges[edgeList[2 * i]], 0.0f));
             double cutPos = damages[indexDamage].cutPosition;
             Node3D p1 = nodes[damages[indexDamage].edge.from];
             Node3D p2 = nodes[damages[indexDamage].edge.to];
