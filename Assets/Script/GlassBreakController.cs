@@ -57,5 +57,28 @@ public class GlassBreakController : MonoBehaviour
         List<Tetrahedron> fracTetras;
         List<Plane> fracPlanes;
         List<TetraPart> tetraParts = mesh3d.getTetraParts(fragments, out fracTetras, out fracPlanes);
+
+        int frag;
+        if (tetraParts[0].tetrahedra.Count == 0)
+            frag = 1;
+        else
+            frag = 0;
+        
+        Vector3 node = tetraParts[frag].tetrahedra[0].tetra[0];
+        for (int i = 0; i < fracTetras.Count; i++)
+        {
+            TetraPart part1, part2;
+            fracTetras[i].Split(fracPlanes[i], out part1, out part2);
+            if (Vector3.Dot((node - fracPlanes[i].point), fracPlanes[i].normal) > 0)
+            {
+                tetraParts[frag].Append(part1);
+                tetraParts[1 - frag].Append(part2);
+            }
+            else
+            {
+                tetraParts[frag].Append(part2);
+                tetraParts[1 - frag].Append(part1);
+            }
+        }
     }
 }
