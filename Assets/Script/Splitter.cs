@@ -15,20 +15,20 @@ public class Splitter : MonoBehaviour
         List<Vector3> vectors = new List<Vector3>
         {
             new Vector3(0.0f, 0.0f, 0.0f),
-            new Vector3(1.0f, 0.0f, 0.0f),
-            new Vector3(0.0f, 1.0f, 0.0f),
-            new Vector3(0.0f, 0.0f, 1.0f),
-            new Vector3(0.0f, 1.0f, 1.0f),
-            new Vector3(1.0f, 1.0f, 0.0f)
+            new Vector3(10.0f, 0.0f, 0.0f),
+            new Vector3(0.0f, 10.0f, 0.0f),
+            new Vector3(0.0f, 0.0f, 10.0f),
+            new Vector3(0.0f, 10.0f, 10.0f),
+            new Vector3(10.0f, 10.0f, 0.0f)
         };
         List<Vector3> vectors2 = new List<Vector3>
         {
-            new Vector3(1.0f, 0.0f, 1.0f),
-            new Vector3(1.0f, 0.0f, 0.0f),
-            new Vector3(1.0f, 1.0f, 1.0f),
-            new Vector3(0.0f, 0.0f, 1.0f),
-            new Vector3(0.0f, 1.0f, 1.0f),
-            new Vector3(1.0f, 1.0f, 0.0f)
+            new Vector3(10.0f, 0.0f, 10.0f),
+            new Vector3(10.0f, 0.0f, 0.0f),
+            new Vector3(10.0f, 10.0f, 10.0f),
+            new Vector3(0.0f, 0.0f, 10.0f),
+            new Vector3(0.0f, 10.0f, 10.0f),
+            new Vector3(10.0f, 10.0f, 0.0f)
         };
         
         sb.tetraPart.PushBackTriPrism(vectors);

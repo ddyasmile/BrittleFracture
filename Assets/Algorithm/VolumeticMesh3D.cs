@@ -388,6 +388,7 @@ public class VolumeticMesh3D
         var R = Matrix3D.initMatrixWithColumnVectors(va, direction, vc).getInverseMatrix();
 
         var result = R.multiply(offset);
+        var noise = Mathf.PerlinNoise(result.x, result.z);
 
         // Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
         return result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor;
@@ -498,8 +499,9 @@ public class VolumeticMesh3D
                     constantFactor *
                     strainEnergyDensity;
 
+                Debug.Log(fracEnergy < strainEnergy);
                 // update frac Edges
-
+                Debug.Log(getNeighborTetras(tetra).Count);
                 foreach (var neTetra in getNeighborTetras(tetra))
                 {
                     if (isCrossed(center0, initialDirection, neTetra) &&
@@ -511,8 +513,8 @@ public class VolumeticMesh3D
                     }
                 }
             }
-            tmpTetra = nextTetra;
-            nextTetra.Clear();
+            tmpTetra = new List<int>(nextTetra);
+            nextTetra = new List<int>();
         }
     }
 }
