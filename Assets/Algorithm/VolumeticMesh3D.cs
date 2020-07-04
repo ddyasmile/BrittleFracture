@@ -26,6 +26,8 @@ public class VolumeticMesh3D
 
         this.nodeIndexOfTetra = new List<TetrahedronNodes3D>();
         this.edgeIndexOfTetra = new List<TetrahedronEdges3D>();
+        this.tetraIndexByNodeIndex = new Dictionary<TetrahedronNodes3D, int>();
+        this.tetraIndexByEdgeIndex = new Dictionary<TetrahedronEdges3D, int>();
     }
 
     /// <summary>
@@ -33,12 +35,14 @@ public class VolumeticMesh3D
     /// containing 4 node indexes of a tetra.
     /// </summary>
     public List<TetrahedronNodes3D> nodeIndexOfTetra;
+    private Dictionary<TetrahedronNodes3D, int> tetraIndexByNodeIndex;
 
     /// <summary>
     /// VM - L
     /// containing 6 edge indexes of a tetra.
     /// </summary>
     public List<TetrahedronEdges3D> edgeIndexOfTetra;
+    private Dictionary<TetrahedronEdges3D, int> tetraIndexByEdgeIndex;
 
     // @ all lists above contains index values
     // @ all lists below contains literal values
@@ -177,14 +181,42 @@ public class VolumeticMesh3D
 
         // Debug.Log(string.Format("{0} {1} {2} {3} {4} {5}", edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
 
-        nodeIndexOfTetra.Add(new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD));
-        edgeIndexOfTetra.Add(new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF));
+        var tetraNodes = new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD);
+        var tetraEdges = new TetrahedronEdges3D(edgeA, edgeB, edgeC, edgeD, edgeE, edgeF);
+        var index = nodeIndexOfTetra.Count - 1;
+
+        nodeIndexOfTetra.Add(tetraNodes);
+        edgeIndexOfTetra.Add(tetraEdges);
+
+        tetraIndexByNodeIndex.Add(tetraNodes, index);
+        tetraIndexByEdgeIndex.Add(tetraEdges, index);
 
         if (nodeIndexOfTetra.Count != edgeIndexOfTetra.Count)
         {
             Debug.LogError("volmesh3D internal inconsistency");
         }
-        return nodeIndexOfTetra.Count - 1;
+
+        return index;
+    }
+
+    public int getTetrahedronIndex(Node3D nodeA, Node3D nodeB, Node3D nodeC, Node3D nodeD)
+    {
+        var nodeIndexA = nodes.FindIndex(node => node == nodeA);
+        var nodeIndexB = nodes.FindIndex(node => node == nodeA);
+        var nodeIndexC = nodes.FindIndex(node => node == nodeA);
+        var nodeIndexD = nodes.FindIndex(node => node == nodeA);
+
+        if (nodeIndexA == -1 || nodeIndexB == -1 || nodeIndexC == -1 || nodeIndexD == -1)
+        {
+            return -1;
+        }
+
+        var tuple = new TetrahedronNodes3D(nodeIndexA, nodeIndexB, nodeIndexC, nodeIndexD);
+        if (tetraIndexByNodeIndex.ContainsKey(tuple))
+        {
+            return tetraIndexByNodeIndex[tuple];
+        }
+        return -1;
     }
 
     /// <summary>
@@ -294,14 +326,9 @@ public class VolumeticMesh3D
     /// <param name="index">the index of tetrahedron to be calculated</param>
     public List<int> getNeighborTetras(int index)
     {
-        var targetNodes = new List<int>();
-
-        foreach (var i in nodeIndexOfTetra[index].flatten())
-        {
-            targetNodes.Add(i);
-        }
-
+        var targetNodes = nodeIndexOfTetra[index].flatten();
         var resultIndex = new List<int>();
+
         for (int i = 0; i < edgeIndexOfTetra.Count; ++i)
         {
             if (i == index) continue;
@@ -320,6 +347,20 @@ public class VolumeticMesh3D
         }
 
         return resultIndex;
+    }
+
+    public bool isNeighborTetras(int index1, int index2)
+    {
+        var targetNodes = nodeIndexOfTetra[index1].flatten();
+
+        int counter = 0;
+
+        foreach (var node in nodeIndexOfTetra[index2].flatten())
+        {
+            if (targetNodes.Contains(node)) ++counter;
+        }
+
+        return counter > 2;
     }
 
 
