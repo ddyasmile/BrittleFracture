@@ -82,7 +82,7 @@ public class VolumeticMesh2D
 
     public bool isDamagedTriangle(int target)
     {
-        foreach (var edge in edgeJointIndexes[target])
+        foreach (var edge in edgeJointIndexes[target].flatten())
         {
             foreach (var damage in damages)
             {

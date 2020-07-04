@@ -251,7 +251,7 @@ public class VolumeticMesh3D
     /// <param name="tetraIndex">the index of tetrahedron to be judged</param>
     public bool isDamagedTetrahedron(int tetraIndex)
     {
-        foreach (var edge in edgeIndexOfTetra[tetraIndex])
+        foreach (var edge in edgeIndexOfTetra[tetraIndex].flatten())
         {
             foreach (var damage in damages)
             {
@@ -338,7 +338,7 @@ public class VolumeticMesh3D
             var nodesTuple = nodeIndexOfTetra[i];
             float distance = 0;
 
-            foreach (var node in nodesTuple)
+            foreach (var node in nodesTuple.flatten())
             {
                 distance += (nodes[(int)node] - position).sqrMagnitude;
             }
@@ -389,7 +389,7 @@ public class VolumeticMesh3D
 
         var result = R.multiply(offset);
 
-        Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
+        // Debug.Log(result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor);
         return result.y - Mathf.PerlinNoise(result.x, result.z) / noiseFactor;
     }
 
@@ -428,6 +428,7 @@ public class VolumeticMesh3D
             if (fromPos * toPos <= 0)
             {
                 float cutPos = Mathf.Abs(fromPos) / (Mathf.Abs(fromPos) + Mathf.Abs(toPos));
+                Debug.Log(string.Format("damage cutPoint: {0}", cutPos));
                 tryAddDamage(new Damage3D(edges[i], cutPos));
                 crossed = true;
             }
@@ -462,11 +463,11 @@ public class VolumeticMesh3D
 
         int hitTetra = getHitRespondingTetraIndex(hitPos);
 
-        List<int> nodesOfTetra = new List<int>();
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].a);
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].b);
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].c);
-        nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].d);
+        List<int> nodesOfTetra = nodeIndexOfTetra[hitTetra].flatten();
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].a);
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].b);
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].c);
+        // nodesOfTetra.Add(nodeIndexOfTetra[hitTetra].d);
 
         Node3D center0 = new Node3D(0.0f, 0.0f, 0.0f);
         foreach (var i in nodesOfTetra)
