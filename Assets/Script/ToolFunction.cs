@@ -8,13 +8,21 @@ public struct Plane
     public Vector3 point; // Any point on this plane
     public Plane(Vector3 normal, Vector3 point)
     {
-        this.normal = normal;
+        this.normal = normal.normalized;
         this.point = point;
     }
     public Plane(Vector3 p1, Vector3 p2, Vector3 p3)
     {
-        normal = Vector3.Cross(p2 - p1, p3 - p1);
-        point = p1;
+        if ((p2 - p1).sqrMagnitude < 1e-6 || (p2 - p3).sqrMagnitude < 1e-6 || (p3 - p1).sqrMagnitude < 1e-6)
+        {
+            normal = Vector3.zero;
+            point = Vector3.zero;
+        } else
+        {
+            normal = Vector3.Cross(p2 - p1, p3 - p1).normalized;
+            point = p1;
+        }
+        
     }
 }
 
@@ -206,7 +214,7 @@ public class Tetrahedron
                     {
                         pindices.Add(i);
                     }
-                    else if (Vector3.Dot(v - intersection, normal) < 0)
+                    else
                     {
                         nindices.Add(i);
                     }
@@ -414,7 +422,7 @@ public class ToolFunction : MonoBehaviour
     /// </summary>
     public static bool IsCoplanar(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Vector3 vertex4)
     {
-        return Mathf.Abs(Vector3.Dot(Vector3.Cross(vertex3 - vertex1, vertex2 - vertex1), vertex4 - vertex1)) < 1e-5;
+        return Mathf.Abs(Vector3.Dot(Vector3.Cross(vertex3 - vertex1, vertex2 - vertex1), vertex4 - vertex1)) < 1e-8;
     }
     /// <summary>
     /// Return whether vertices are coplanar.
@@ -425,7 +433,7 @@ public class ToolFunction : MonoBehaviour
         Vector3 normal = Vector3.Cross(vertices[2] - vertices[0], vertices[1] - vertices[0]);
         for (int i = 3; i < vertices.Count; i++)
         {
-            if (Mathf.Abs(Vector3.Dot(vertices[i] - vertices[0], normal)) >= 1e-5) return false;
+            if (Mathf.Abs(Vector3.Dot(vertices[i] - vertices[0], normal)) >= 1e-8) return false;
         }
         return true;
     }

@@ -54,16 +54,38 @@ public class GlassBreakController : MonoBehaviour
         List<List<int>> fragments = new List<List<int>>();
         fragments = FloodAlgorithm.floodSplit3D(ref mesh3d);
 
-        foreach (int i in mesh3d.damagedNodes)
-        {
-            Tetrahedron fracTetra = mesh3d.getFractureTetra(i);
-            Plane fracPlane = mesh3d.getFracturePlane(i);
-            TetraPart part1, part2;
-            fracTetra.Split(fracPlane, out part1, out part2);
+        List<Tetrahedron> fracTetras;
+        List<Plane> fracPlanes;
+        List<TetraPart> tetraParts = mesh3d.getTetraParts(fragments, out fracTetras, out fracPlanes);
 
-            int index = tetrahedra.FindIndex(tetr => tetr.Equals(fracTetra));
-            /// remove fracTetra from tetrahedra
-            /// then append part1 and part2 into tetrahedra
+        int frag;
+        if (tetraParts[0].tetrahedra.Count == 0)
+            frag = 1;
+        else
+            frag = 0;
+        
+        Vector3 node = tetraParts[frag].tetrahedra[0].tetra[0];
+        for (int i = 0; i < fracTetras.Count; i++)
+        {
+            TetraPart part1, part2;
+            fracTetras[i].Split(fracPlanes[i], out part1, out part2);
+            if (Vector3.Dot((node - fracPlanes[i].point), fracPlanes[i].normal) > 0)
+            {
+                tetraParts[frag].Append(part1);
+                tetraParts[1 - frag].Append(part2);
+            }
+            else
+            {
+                tetraParts[frag].Append(part2);
+                tetraParts[1 - frag].Append(part1);
+            }
         }
+        var sb = GameObject.Find("Tetra").GetComponent<ShaderBase>();
+        sb.tetraPart = tetraParts[0];
+        sb.FlushTetraPart();
+        var sb2 = new GameObject().AddComponent<ShaderBase>();
+        sb2.material = sb.material;
+        sb2.tetraPart = tetraParts[1];
+        sb2.FlushTetraPart();
     }
 }
