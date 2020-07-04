@@ -580,4 +580,32 @@ public class VolumeticMesh3D
         }
         return new Tetrahedron(tetrahedron);
     }
+
+    public List<TetraPart> getTetraParts(List<List<int>> fragments)
+    {
+        List<TetraPart> tetraParts = new List<TetraPart>(fragments.Count);
+
+        for (int i = 0; i < nodeIndexOfTetra.Count; i++)
+        {
+            if (!damagedNodes.Contains(i))
+            {
+                int node = nodeIndexOfTetra[i].a;
+                for (int j = 0; j < fragments.Count; j++)
+                {
+                    if (fragments[j].Contains(node))
+                    {
+                        List<Vector3> tetrList = new List<Vector3>();
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].a]);
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].b]);
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].c]);
+                        tetrList.Add(nodes[nodeIndexOfTetra[i].d]);
+                        tetraParts[j].PushBackTetra(tetrList);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return tetraParts;
+    }
 }
