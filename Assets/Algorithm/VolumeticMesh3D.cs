@@ -349,6 +349,12 @@ public class VolumeticMesh3D
         return resultIndex;
     }
 
+    /// <summary>
+    /// isNeighborTetras
+    /// judge if two tetras are neighbors
+    /// </summary>
+    /// <param name="index1">index of one tetrahedron to be judged</param>
+    /// <param name="index2">index of one tetrahedron to be judged</param>
     public bool isNeighborTetras(int index1, int index2)
     {
         var targetNodes = nodeIndexOfTetra[index1].flatten();
